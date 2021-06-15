@@ -8,6 +8,18 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 1. A front-end webapp
 2. A solidity contract (the liquidity manager?)
 
+# Todos
+- Look into a well organised defi project for folder structure (Maybe the Chainshot Escrow repo)
+- Create a react app
+- npm i libraries (uniswap sdk, open zeppelin)
+- Write some tests
+- Call uniswap v3 to provide liquidity
+- Write more tests
+- Call uniswap to remove liquidity
+
+# Done
+- Create repo
+
 # Platforms and languages
 - React
 - [Create React App](https://github.com/facebook/create-react-app) (to get started?)
