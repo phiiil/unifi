@@ -1,4 +1,9 @@
 ## @project/contracts
+yarn 
+
+create ALCHEMY_KEY in .env
+
+npx hardhat test test/test.js
 
 A minimalist, opinionated structure for managing smart contract ABIs and addresses.
 
