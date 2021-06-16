@@ -10,8 +10,22 @@ Our target users are Liquidity Providers.
 The aim to deliver a first version which is both usable and provide a minimal functionality. The first version will be composed of:
 
 - A front end for user to deposit funds
+    - support depositing/withdrawing ETH and an ERC20 token
+    - support depositing/withdrawing any two ERC20 tokens 
+    - approve individual ERC20 token; then deposit;
+    - withdraw with current reserve ratio of the curent two assets
+    - dashboard data: 
+        - current total liquidity
+        - individual token liquidity
+        - accrued fees in each token
+        - an APR?
 - A fixed strategy vault. A simple delegate contract.
-
+    - preset position params (price range, fees)
+    - auto calculate token amounts based on user input (which means not to accept arbitrary amount0 and amount1) from users.
+    - would be an advanced feature to accept any user inputs of amount0 and amount1
+    - mint new position. 
+    - increase liquidity.
+    - decrease liquidity.
 
 # Todos
 - Look into a well organised defi project for folder structure (Maybe the Chainshot Escrow repo)
@@ -32,7 +46,7 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 # Platforms and languages
 - React
 - [Create React App](https://github.com/facebook/create-react-app) (to get started?)
-- [Solidity 0.8.5](https://docs.soliditylang.org/en/v0.8.5/)
+- [Solidity 0.7.6](https://docs.soliditylang.org/en/v0.7.6/)
 - [Uniswap SDK](https://docs.uniswap.org/SDK/)
 
 # Infinite Possibilities (idea dump)
