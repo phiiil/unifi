@@ -4,6 +4,8 @@ Unifi is a vault-like liquidity manager for Uniswap v3. The aim is to provide a 
 
 The vault adjusts marker-making strategies (price, ranges, size) over time as the market levels change.
 
+Our target users are Liquidity Providers.
+
 # Minimum Viable Product
 The aim to deliver a first version which is both usable and provide a minimal functionality. The first version will be composed of:
 
@@ -22,6 +24,10 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 
 # Done
 - Create repo
+
+# Simple First Strategy
+- Select Pair
+- Select Range 
 
 # Platforms and languages
 - React
