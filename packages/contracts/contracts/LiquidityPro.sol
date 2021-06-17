@@ -43,7 +43,7 @@ contract LiquidityPro {
             uint256 amount1
         )
     {
-        (sqrtPriceX96, tick, , , , , ) = pool.slot0();
+        //(sqrtPriceX96, tick, , , , , ) = pool.slot0();
 
         // https://etherscan.io/tx/0xae3cd10be22debaf04f6e2e0d490ad633632705b10b6c76300228ecc2af4f050#eventlog
         INonfungiblePositionManager.MintParams memory params =
