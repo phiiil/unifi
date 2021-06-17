@@ -30,16 +30,28 @@ describe("LiquidityPro", function() {
 
     let ethBal = await signer.getBalance();
 
-    signer.sendTransaction({
+    await signer.sendTransaction({
       to: lp.address,
       value: ethers.utils.parseEther('200')
     });
 
-    const lpUsdcBal = await usdc.balanceOf(lp.address);
+    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
     // usdcBal = await usdc.balanceOf(impersonAddress);
-    const [sqrtPriceX96, tick] = await lp.createPosition();
-    console.log(ethers.utils.formatEther(sqrtPriceX96));
-    console.log(tick);
+    const {tokenId, liquidity, amount0, amount1} = await lp.createPosition();
+    // await lp.createPosition();
+
+    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+
+    // const token0 = await lp.getToken0();
+    // const token1 = await lp.getToken1();
+    // console.log("tokenId", tokenId);
+    // console.log("amount0", ethers.utils.formatEther(amount0));
+    // console.log("amount1", ethers.utils.formatEther(amount1));
+    // console.log(tick);
+    // console.log("token0", token0);
+    // console.log("token1", token1);
     // console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getEthBalance()));
     // console.log("LPcontract usdc bal", ethers.utils.formatUnits(lpUsdcBal, '6'))
     // console.log("person usdc bal", ethers.utils.formatUnits(usdcBal, '6'))
