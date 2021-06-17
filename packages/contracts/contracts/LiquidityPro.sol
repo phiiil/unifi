@@ -46,7 +46,7 @@ contract LiquidityPro {
         view
         returns (uint160 sqrtPriceX96, int24 tick)
     {
-        (uint160 sqrtPriceX96, int24 tick, , , , , ) = pool.slot0();
+        (sqrtPriceX96, tick, , , , , ) = pool.slot0();
 
         return (sqrtPriceX96, tick);
         // console.log(sqrtPriceX96);
