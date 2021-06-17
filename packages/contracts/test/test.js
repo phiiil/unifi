@@ -30,16 +30,38 @@ describe("LiquidityPro", function() {
 
     let ethBal = await signer.getBalance();
 
-    signer.sendTransaction({
+    await signer.sendTransaction({
       to: lp.address,
       value: ethers.utils.parseEther('200')
     });
 
-    const lpUsdcBal = await usdc.balanceOf(lp.address);
+    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
     // usdcBal = await usdc.balanceOf(impersonAddress);
-    const [sqrtPriceX96, tick] = await lp.createPosition();
-    console.log(ethers.utils.formatEther(sqrtPriceX96));
-    console.log(tick);
+    await lp.createPosition();
+    // await lp.createPosition();
+
+
+    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+
+    // console.log(Number(await lp.getTotalLiquidity()));
+    await lp.withdraw();
+    // console.log("liquidity", liquidity);
+    console.log((await pm.balanceOf(lp.address)).toString());
+    const tokenId = (await pm.tokenOfOwnerByIndex(lp.address, 0)).toString();
+
+    console.log("after withdraw from NFT");
+    console.log("LPcontract weth bal", ethers.utils.formatEther(await lp.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+    const position = await pm.positions(tokenId);
+    console.log(position.liquidity);
+
+    // console.log("amount0", ethers.utils.formatEther(amount0));
+    // console.log("amount1", ethers.utils.formatEther(amount1));
+    // console.log(tick);
+    // console.log("token0", token0);
+    // console.log("token1", token1);
     // console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getEthBalance()));
     // console.log("LPcontract usdc bal", ethers.utils.formatUnits(lpUsdcBal, '6'))
     // console.log("person usdc bal", ethers.utils.formatUnits(usdcBal, '6'))
