@@ -38,15 +38,25 @@ describe("LiquidityPro", function() {
     console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
     console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
     // usdcBal = await usdc.balanceOf(impersonAddress);
-    const {tokenId, liquidity, amount0, amount1} = await lp.createPosition();
+    await lp.createPosition();
     // await lp.createPosition();
+
 
     console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
     console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
 
-    // const token0 = await lp.getToken0();
-    // const token1 = await lp.getToken1();
-    // console.log("tokenId", tokenId);
+    // console.log(Number(await lp.getTotalLiquidity()));
+    await lp.withdraw();
+    // console.log("liquidity", liquidity);
+    console.log((await pm.balanceOf(lp.address)).toString());
+    const tokenId = (await pm.tokenOfOwnerByIndex(lp.address, 0)).toString();
+
+    console.log("after withdraw from NFT");
+    console.log("LPcontract weth bal", ethers.utils.formatEther(await lp.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+    const position = await pm.positions(tokenId);
+    console.log(position.liquidity);
+
     // console.log("amount0", ethers.utils.formatEther(amount0));
     // console.log("amount1", ethers.utils.formatEther(amount1));
     // console.log(tick);

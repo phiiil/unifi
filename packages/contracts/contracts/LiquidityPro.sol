@@ -20,6 +20,8 @@ contract LiquidityPro {
     IERC20Minimal token0;
     IERC20Minimal token1;
     IWETH9 weth9 = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    uint128 public totalLiquidity;
+    uint256 public vaultTokenId;
 
     constructor(
         IUniswapV3Factory _factory,
@@ -33,7 +35,7 @@ contract LiquidityPro {
     }
 
     function createPosition()
-        external
+        public
         returns (
             uint256 tokenId,
             uint128 liquidity,
@@ -72,6 +74,9 @@ contract LiquidityPro {
         //     .mint{value: address(this).balance}(params);
         (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
             .mint(params);
+        totalLiquidity += liquidity;
+        vaultTokenId = tokenId;
+
         // (bool success, bytes memory returnData) =
         //     address(nonfungiblePositionManager).call{
         //         value: 135.608504651217967263 ether
@@ -79,9 +84,38 @@ contract LiquidityPro {
 
         // console.log(returnData);
         // require(success, "failed mint");
-        // return (tokenId, liquidity, amount0, amount1);
+        return (tokenId, liquidity, amount0, amount1);
         // console.log(sqrtPriceX96);
         // console.log(tick); hardhat console doesnt work for int
+    }
+
+    function withdraw() public {
+        console.log("vaultTokenId", vaultTokenId);
+        console.log("total Liquidity", totalLiquidity);
+        INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: vaultTokenId,
+                liquidity: totalLiquidity,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp + 1 days
+            });
+        (uint256 amount0, uint256 amount1) =
+            nonfungiblePositionManager.decreaseLiquidity(params);
+
+        INonfungiblePositionManager.CollectParams memory cparams =
+            INonfungiblePositionManager.CollectParams({
+                tokenId: vaultTokenId,
+                recipient: address(this),
+                amount0Max: uint128(amount0),
+                amount1Max: uint128(amount1)
+            });
+
+        (amount0, amount1) = nonfungiblePositionManager.collect(cparams);
+    }
+
+    function getTotalLiquidity() public view returns (uint256) {
+        return totalLiquidity;
     }
 
     function getToken0() public view returns (address) {
