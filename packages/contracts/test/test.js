@@ -10,18 +10,18 @@ const wethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 const impersonAddress = "0x3630220f243288E3EAC4C5676fC191CFf5756431";
 const usdcWethPoolAddress = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8";
 
-describe("LiquidityPro", function() {
-  it("check balance", async function() {
+describe("LiquidityPro", function () {
+  it("check balance", async function () {
+    // deploy contract
     const LiquidityPro = await ethers.getContractFactory("LiquidityPro");
     const lp = await LiquidityPro.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
-    
     await lp.deployed();
-
+    // Impresonate an account with WETH and USDC
     await hre.network.provider.request({
       method: "hardhat_impersonateAccount",
-      params: ["0x3630220f243288E3EAC4C5676fC191CFf5756431"]}
+      params: ["0x3630220f243288E3EAC4C5676fC191CFf5756431"]
+    }
     )
-
     const signer = await ethers.provider.getSigner("0x3630220f243288E3EAC4C5676fC191CFf5756431")
     const usdc = new ethers.Contract(usdcAddress, usdcAbi, signer);
     const pm = new ethers.Contract(NFTPM, nftAbi, signer);

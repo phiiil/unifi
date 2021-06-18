@@ -1,11 +1,14 @@
 ## @project/contracts
-yarn 
 
-create ALCHEMY_KEY in .env
+### Getting started
 
-npx hardhat test test/test.js
+```
+    yarn 
+    create ALCHEMY_KEY in .env
+    npx hardhat test test/test.js
+```
 
--------
+### Addresses
 
 uniswap v3 mainnet router 0xE592427A0AEce92De3Edee1F18E0157C05861564
 

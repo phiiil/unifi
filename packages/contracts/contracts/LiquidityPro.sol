@@ -28,7 +28,7 @@ contract LiquidityPro {
         INonfungiblePositionManager _nonfungiblePositionManager,
         IUniswapV3Pool _pool
     ) {
-        // console.log("Deploying a Greeter with greeting:", _greeting);
+        console.log("Deploying LiquitidyPro");
         factory = _factory;
         nonfungiblePositionManager = _nonfungiblePositionManager;
         pool = _pool;
