@@ -9,7 +9,7 @@ Our target users are Liquidity Providers.
 # Minimum Viable Product
 The aim to deliver a first version which is both usable and provide a minimal functionality. The first version will be composed of:
 
-- A front end for user to deposit funds
+- A front end for user to deposit funds (ETH and USDC for the MVP)
     - support depositing/withdrawing ETH and an ERC20 token
     - support depositing/withdrawing any two ERC20 tokens 
     - approve individual ERC20 token; then deposit;
@@ -28,16 +28,19 @@ The aim to deliver a first version which is both usable and provide a minimal fu
     - decrease liquidity.
 
 # Todos
-- Look into a well organised defi project for folder structure (Maybe the Chainshot Escrow repo)
-- Create a react app
-- npm i libraries (uniswap sdk, open zeppelin)
 - Write some tests
 - Call uniswap v3 to provide liquidity
 - Write more tests
 - Call uniswap to remove liquidity
+- React: Display wallet balance
+- React: Display Pool information for ETH-USDC
 
 # Done
 - Create repo
+- Look into a well organised defi project for folder structure (Maybe the Chainshot Escrow repo)
+- Create a react app
+- npm i libraries (uniswap sdk, open zeppelin)
+- Connect Wallet on Front-end
 
 # Simple First Strategy
 - Select Pair
