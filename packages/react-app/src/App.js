@@ -1,4 +1,5 @@
 import React from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
@@ -16,14 +17,32 @@ async function readOnChainData(provider) {
   // const tokenBalance = await ceaErc20.balanceOf("0x3f8CB69d9c0ED01923F11c829BaE4D9a4CB6c82C");
   // console.log({ tokenBalance: tokenBalance.toString() });
   // A pre-defined address that owns some CEAERC20 tokens
-  const signer = await provider.getSigner(0);
+  const signer = provider.getSigner();
   const address = await signer.getAddress();
   const rawBalance = await provider.getBalance(address);
   const balance = ethers.utils.formatEther(rawBalance);
   console.log(`ETH balance: ${balance}`);
 }
 
-function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
+function WalletButton() { //{ provider, loadWeb3Modal, logoutOfWeb3Modal }
+  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
+  const [address, setAddress] = useState('Connect');
+
+  useEffect(() => {
+    getWalletInfo();
+  }, [provider]);
+
+  const getWalletInfo = async () => {
+    if (provider) {
+      let s = provider.getSigner();
+      let a = await s.getAddress()
+      setAddress(a);
+    }
+    else {
+      console.log('no provider')
+    }
+  };
+
   return (
     <Button
       onClick={() => {
@@ -34,14 +53,14 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
         }
       }}
     >
-      {!provider ? "Connect Wallet" : "Disconnect Wallet"}
+      {!provider ? "Connect Wallet" : address}
     </Button>
   );
 }
 
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
-  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
+  const [provider] = useWeb3Modal();
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
@@ -52,15 +71,14 @@ function App() {
   return (
     <div>
       <Header>
-        <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
+        <WalletButton />
       </Header>
       <Body>
         <Image src={logo} alt="react-logo" />
         <h1>This is <span style={{ color: "yellow" }}>unifi</span></h1>
         <p>
-          Edit <code>packages/react-app/src/App.js</code> and save to reload.
+          Liquidity Strategy
         </p>
-        {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
         <Button onClick={() => readOnChainData(provider)}>
           Read On-Chain Balance
         </Button>
