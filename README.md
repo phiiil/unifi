@@ -58,3 +58,7 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 - Provider simple templates that automatically follow the market ranges
 - Use bollinger bands to re-target liquidity ranges
 - Allow providers to express a market view while being makers
+
+# Realted projects
+- [Defi Lab: Uniswap V3 Strategy Simulator](https://defi-lab.xyz/uniswapv3simulator)
+- [Visor: Liquidity Management on Uniswap v3](https://www.visor.finance/)
