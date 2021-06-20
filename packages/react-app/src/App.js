@@ -10,6 +10,7 @@ import useWeb3Modal from "./hooks/useWeb3Modal";
 import { ethers } from 'ethers';
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
+import { Currency, Token, CurrencyAmount, Ether } from '@uniswap/sdk-core'
 
 async function readOnChainData(provider) {
   //const defaultProvider = getDefaultProvider();
@@ -24,19 +25,35 @@ async function readOnChainData(provider) {
   console.log(`ETH balance: ${balance}`);
 }
 
-function WalletButton() { //{ provider, loadWeb3Modal, logoutOfWeb3Modal }
+function WalletButton() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
-  const [address, setAddress] = useState('Connect');
+  const [address, setAddress] = useState('no address');
+  const [addressString, setAddressString] = useState('Connect');
+  const [balance, setBalance] = useState('no balance');
+  const [balanceString, setBalanceString] = useState('no balance');
+  const [network, setNetwork] = useState();
 
   useEffect(() => {
-    getWalletInfo();
+    if (provider) {
+      getWalletInfo();
+    }
   }, [provider]);
 
   const getWalletInfo = async () => {
     if (provider) {
+      // get address
       let s = provider.getSigner();
       let a = await s.getAddress()
       setAddress(a);
+      let as = a.toString();
+      setAddressString(as.slice(0, 6) + '...' + as.slice(-4));
+      let b = await s.getBalance();
+      const network = await provider.getNetwork();
+      setNetwork(network);
+      console.log(network);
+      let balanceCurrency = CurrencyAmount.fromRawAmount(Ether.onChain(network.chainId), b);
+      setBalance(balanceCurrency);
+      setBalanceString(`${balanceCurrency.toSignificant(4)} Ξ`);
     }
     else {
       console.log('no provider')
@@ -44,23 +61,27 @@ function WalletButton() { //{ provider, loadWeb3Modal, logoutOfWeb3Modal }
   };
 
   return (
-    <Button
-      onClick={() => {
-        if (!provider) {
-          loadWeb3Modal();
-        } else {
-          logoutOfWeb3Modal();
-        }
-      }}
-    >
-      {!provider ? "Connect Wallet" : address}
-    </Button>
+    <div>
+      <Button>{network?.name}</Button>
+      <Button>{balanceString}</Button>
+      <Button
+        onClick={() => {
+          if (!provider) {
+            loadWeb3Modal();
+          } else {
+            logoutOfWeb3Modal();
+          }
+        }}
+      >
+        {!provider ? "Connect Wallet" : addressString}
+      </Button>
+    </div>
   );
 }
 
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
-  const [provider] = useWeb3Modal();
+  const [provider] = [null]; //useWeb3Modal();
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
