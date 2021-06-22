@@ -34,7 +34,7 @@ contract LiquidityPro {
         pool = _pool;
     }
 
-    function createPosition()
+    function mintPosition(INonfungiblePositionManager.MintParams memory params)
         public
         returns (
             uint256 tokenId,
@@ -46,20 +46,20 @@ contract LiquidityPro {
         //(sqrtPriceX96, tick, , , , , ) = pool.slot0();
 
         // https://etherscan.io/tx/0xae3cd10be22debaf04f6e2e0d490ad633632705b10b6c76300228ecc2af4f050#eventlog
-        INonfungiblePositionManager.MintParams memory params =
-            INonfungiblePositionManager.MintParams({
-                token0: pool.token0(),
-                token1: pool.token1(),
-                fee: pool.fee(),
-                tickLower: 196260,
-                tickUpper: 199920,
-                amount0Desired: 310555940140,
-                amount1Desired: 125608504651217967263,
-                amount0Min: 0,
-                amount1Min: 0,
-                recipient: address(this),
-                deadline: block.timestamp + 1 days
-            });
+        // INonfungiblePositionManager.MintParams memory params =
+        //     INonfungiblePositionManager.MintParams({
+        //         token0: pool.token0(),
+        //         token1: pool.token1(),
+        //         fee: pool.fee(),
+        //         tickLower: 196260,
+        //         tickUpper: 199920,
+        //         amount0Desired: 310555940140,
+        //         amount1Desired: 125608504651217967263,
+        //         amount0Min: 0,
+        //         amount1Min: 0,
+        //         recipient: address(this),
+        //         deadline: block.timestamp + 1 days
+        //     });
 
         IERC20Minimal(getToken0()).approve(
             address(nonfungiblePositionManager),

@@ -18,6 +18,20 @@ const ALCHEMY_KEY = process.env.ALCHEMY_KEY;
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
+
+
+//  module.exports = {
+//   solidity: "0.7.6",
+//   networks: {
+//     beacon: {
+//       url: "https://rpc.tenderly.co/fork/3c9e60b7-fe55-4ca6-a173-e0b34a13223f",
+//       blockNumber: 12631015, 
+//       accounts: [process.env.PRIVATE_KEY]
+//     }
+//   }
+// };
+
+
 module.exports = {
   solidity: "0.7.6",
   networks: {
