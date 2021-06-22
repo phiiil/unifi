@@ -12,6 +12,8 @@ import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
 import { Currency, Token, CurrencyAmount, Ether } from '@uniswap/sdk-core'
 
+import Unifi from './LiquidityPro.json'
+
 async function readOnChainData(provider) {
   //const defaultProvider = getDefaultProvider();
   // const ceaErc20 = new Contract(addresses.ceaErc20, abis.erc20, defaultProvider);
@@ -25,6 +27,7 @@ async function readOnChainData(provider) {
   console.log(`ETH balance: ${balance}`);
 }
 
+// Eventually take this component out into separate file
 function WalletButton() {
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const [address, setAddress] = useState('no address');
@@ -79,6 +82,41 @@ function WalletButton() {
   );
 }
 
+function VaultInfo() {
+  const [provider] = useWeb3Modal();
+  const [totalLiquidity, setTotalLiquidity] = useState();
+
+  useEffect(() => {
+    if (provider) {
+      getVaultInfo();
+    }
+  }, [provider]);
+
+  const getVaultInfo = async () => {
+    if (provider) {
+      console.log('Getting Vault Info...')
+      const unifiAddress = "0x565a4D843cBEF936Cbb154480cB125191A8119Bd";
+      const unifiAbi = {};
+
+      const unifiContract = new Contract(unifiAddress, Unifi.abi, provider);
+      let tl = await unifiContract.getTotalLiquidity();
+      setTotalLiquidity(tl.toString());
+    }
+    else {
+      console.log('no provider')
+    }
+  };
+
+  return (
+    <div>
+      Total Liquidity: {totalLiquidity}
+    </div>
+  )
+
+}
+
+
+
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
   const [provider] = useWeb3Modal();
@@ -95,11 +133,14 @@ function App() {
         <WalletButton />
       </Header>
       <Body>
-        <Image src={logo} alt="react-logo" />
+
         <h1>This is <span style={{ color: "yellow" }}>unifi</span></h1>
         <p>
-          Liquidity Strategy
+          Vault Info
         </p>
+        <VaultInfo />
+
+        <h1>---</h1>
         <Button onClick={() => readOnChainData(provider)}>
           Read On-Chain Balance
         </Button>
