@@ -32,8 +32,9 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 - Call uniswap v3 to provide liquidity
 - Write more tests
 - Call uniswap to remove liquidity
-- React: Display wallet balance
+- Whitelist the contract for security and testing
 - React: Display Pool information for ETH-USDC
+- React: Update Wallet display on change
 
 # Done
 - Create repo
@@ -41,6 +42,7 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 - Create a react app
 - npm i libraries (uniswap sdk, open zeppelin)
 - Connect Wallet on Front-end
+- React: Display wallet balance
 
 # Simple First Strategy
 - Select Pair

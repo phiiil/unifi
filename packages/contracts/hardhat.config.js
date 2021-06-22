@@ -1,16 +1,19 @@
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config();
+require("uniswap-v3-deploy-plugin");
+require("@tenderly/hardhat-tenderly");
+
+
 const ALCHEMY_KEY = process.env.ALCHEMY_KEY;
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async () => {
-  const accounts = await ethers.getSigners();
 
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
+// task("accounts", "Prints the list of accounts", async () => {
+//   const accounts = await ethers.getSigners();
+
+//   for (const account of accounts) {
+//     console.log(account.address);
+//   }
+// });
 
 /**
  * @type import('hardhat/config').HardhatUserConfig
@@ -22,7 +25,12 @@ module.exports = {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
         blockNumber: 12631015
-      }
+      },
+    },
+    tenderly: {
+      url: "https://rpc.tenderly.co/fork/390a3ebc-c5e6-4591-a1d6-d0901f7a891c",
+      chainId: 1,
+      accounts: [process.env.PRIVATE_KEY]
     }
   }
 };

@@ -81,7 +81,7 @@ function WalletButton() {
 
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
-  const [provider] = [null]; //useWeb3Modal();
+  const [provider] = useWeb3Modal();
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
