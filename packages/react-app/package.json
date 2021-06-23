@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
+    "@chakra-ui/react": "^1.6.4",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.12",
     "@project/contracts": "^1.0.0",
@@ -34,6 +37,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-flowtype": "^4.6.0",
     "ethers": "^5.3.1",
+    "framer-motion": "^4",
     "graphql": "^14.7.0",
     "ipfs-http-client": "^45.0.0",
     "react": "16.14.0",

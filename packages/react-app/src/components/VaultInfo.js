@@ -1,5 +1,14 @@
 import React from "react";
 import { useEffect, useState } from "react";
+import {
+    Stat,
+    StatLabel,
+    StatNumber,
+    StatHelpText,
+    StatArrow,
+    StatGroup,
+} from "@chakra-ui/react"
+import { Box, Flex, Spacer } from "@chakra-ui/react"
 import { Contract } from "@ethersproject/contracts";
 import useWeb3Modal from "../hooks/useWeb3Modal";
 import Unifi from '../LiquidityPro.json'
@@ -40,8 +49,24 @@ function VaultInfo() {
 
     return (
         <div>
-            <div>token0: <span >{token0}</span></div>
-            <div>token1: <span >{token1}</span></div>
+            <Flex color="white">
+                <Box maxW="sm" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
+                    <Stat>
+                        <StatLabel>Token0</StatLabel>
+                        <StatNumber>WETH</StatNumber>
+                        <StatHelpText>{token0}</StatHelpText>
+                    </Stat>
+                </Box>
+                <Spacer />
+                <Box maxW="sm" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
+                    <Stat>
+                        <StatLabel>Token1</StatLabel>
+                        <StatNumber>USDC</StatNumber>
+                        <StatHelpText>{token1}</StatHelpText>
+                    </Stat>
+                </Box>
+            </Flex>
+
             <div>
                 Total Liquidity: {totalLiquidity}
             </div>

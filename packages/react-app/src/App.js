@@ -1,9 +1,11 @@
 import React from "react";
+import { ChakraProvider } from "@chakra-ui/react"
 import { useCallback, useEffect, useState } from "react";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, Image, Link } from "./components";
+import { Box, Flex, Spacer } from "@chakra-ui/react"
 import VaultInfo from "./components/VaultInfo.js";
 import WalletHeader from "./components/WalletHeader.js";
 import useWeb3Modal from "./hooks/useWeb3Modal";
@@ -27,7 +29,7 @@ async function readOnChainData(provider) {
 }
 
 
-function App() {
+function App({ Component }) {
 
   const [provider] = useWeb3Modal();
 
@@ -40,25 +42,29 @@ function App() {
   }, [loading, error, data]);
 
   return (
-    <div>
-      <Header>
-        <WalletHeader />
-      </Header>
-      <Body>
+    <ChakraProvider>
 
-        <h1>This is <span style={{ color: "yellow" }}>unifi</span></h1>
-        <p>
-          Vault Info
-        </p>
-        <VaultInfo />
+      {/* <Header> */}
+      <Flex bgGradient="linear(to-r, red.200 0%, orange.100 25%, yellow.300 50%)">
+        <Box color="gray.800" fontWeight="bold" fontSize="2em" p="4" >
+          Unifi
+          </Box>
+        <Spacer />
+        <Box p="4" >
+          <WalletHeader />
+        </Box>
+      </Flex >
+      {/* </Header> */}
+      < Body>
 
+        < VaultInfo />
         <h1>---</h1>
         <Button onClick={() => readOnChainData(provider)}>
           Read On-Chain Balance
         </Button>
+      </Body >
 
-      </Body>
-    </div>
+    </ChakraProvider >
   );
 }
 
