@@ -14,11 +14,17 @@ async function main() {
   await lp.deployed();
   console.log("LPPro deployed to:", lp.address);
 
-  // contract does not verify for some reason on tenderly...
-  await hre.tenderly.verify({
-    name: "LiquidityPro",
-    address: lp.address,
-  })
+  // // Trying to push to tenderly...
+  // await hre.tenderly.persistArtifacts({
+  //   name: "LiquidityPro",
+  //   address: lp.address,
+  // });
+
+  // // contract does not verify for some reason on tenderly...
+  // await hre.tenderly.push({
+  //   name: "LiquidityPro",
+  //   address: lp.address,
+  // })
 
 }
 

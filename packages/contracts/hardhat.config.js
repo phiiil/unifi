@@ -46,6 +46,10 @@ module.exports = {
       chainId: 1,
       accounts: [process.env.PRIVATE_KEY]
     }
+  },
+  tenderly: {
+    username: "chainshot",
+    project: "beacon",
   }
 };
 
