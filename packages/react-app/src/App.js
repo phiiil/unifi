@@ -3,16 +3,15 @@ import { useCallback, useEffect, useState } from "react";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
-
 import { Body, Button, Header, Image, Link } from "./components";
-import logo from "./ethereumLogo.png";
+import VaultInfo from "./components/VaultInfo.js";
+import WalletHeader from "./components/WalletHeader.js";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { ethers } from 'ethers';
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
-import { Currency, Token, CurrencyAmount, Ether } from '@uniswap/sdk-core'
 
-import Unifi from './LiquidityPro.json'
+import logo from "./ethereumLogo.png";
 
 async function readOnChainData(provider) {
   //const defaultProvider = getDefaultProvider();
@@ -27,100 +26,13 @@ async function readOnChainData(provider) {
   console.log(`ETH balance: ${balance}`);
 }
 
-// Eventually take this component out into separate file
-function WalletButton() {
-  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
-  const [address, setAddress] = useState('no address');
-  const [addressString, setAddressString] = useState('Connect');
-  const [balance, setBalance] = useState('no balance');
-  const [balanceString, setBalanceString] = useState('no balance');
-  const [network, setNetwork] = useState();
-
-  useEffect(() => {
-    if (provider) {
-      getWalletInfo();
-    }
-  }, [provider]);
-
-  const getWalletInfo = async () => {
-    if (provider) {
-      // get address
-      let s = provider.getSigner();
-      let a = await s.getAddress()
-      setAddress(a);
-      let as = a.toString();
-      setAddressString(as.slice(0, 6) + '...' + as.slice(-4));
-      let b = await s.getBalance();
-      const network = await provider.getNetwork();
-      setNetwork(network);
-      console.log(network);
-      let balanceCurrency = CurrencyAmount.fromRawAmount(Ether.onChain(network.chainId), b);
-      setBalance(balanceCurrency);
-      setBalanceString(`${balanceCurrency.toSignificant(4)} Ξ`);
-    }
-    else {
-      console.log('no provider')
-    }
-  };
-
-  return (
-    <div>
-      <Button>{network?.name}</Button>
-      <Button>{balanceString}</Button>
-      <Button
-        onClick={() => {
-          if (!provider) {
-            loadWeb3Modal();
-          } else {
-            logoutOfWeb3Modal();
-          }
-        }}
-      >
-        {!provider ? "Connect Wallet" : addressString}
-      </Button>
-    </div>
-  );
-}
-
-function VaultInfo() {
-  const [provider] = useWeb3Modal();
-  const [totalLiquidity, setTotalLiquidity] = useState();
-
-  useEffect(() => {
-    if (provider) {
-      getVaultInfo();
-    }
-  }, [provider]);
-
-  const getVaultInfo = async () => {
-    if (provider) {
-      console.log('Getting Vault Info...')
-      const unifiAddress = "0x565a4D843cBEF936Cbb154480cB125191A8119Bd";
-      const unifiAbi = {};
-
-      const unifiContract = new Contract(unifiAddress, Unifi.abi, provider);
-      let tl = await unifiContract.getTotalLiquidity();
-      setTotalLiquidity(tl.toString());
-    }
-    else {
-      console.log('no provider')
-    }
-  };
-
-  return (
-    <div>
-      Total Liquidity: {totalLiquidity}
-    </div>
-  )
-
-}
-
-
 
 function App() {
-  const { loading, error, data } = useQuery(GET_TRANSFERS);
+
   const [provider] = useWeb3Modal();
 
+  // stuff for the subgraph call (not using this yet)
+  const { loading, error, data } = useQuery(GET_TRANSFERS);
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
       console.log({ transfers: data.transfers });
@@ -130,7 +42,7 @@ function App() {
   return (
     <div>
       <Header>
-        <WalletButton />
+        <WalletHeader />
       </Header>
       <Body>
 
