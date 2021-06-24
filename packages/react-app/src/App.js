@@ -5,7 +5,7 @@ import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, Image, Link } from "./components";
-import { Box, Flex, Spacer } from "@chakra-ui/react"
+import { Container, Center, Box, Flex, Spacer } from "@chakra-ui/react"
 import VaultInfo from "./components/VaultInfo.js";
 import WalletHeader from "./components/WalletHeader.js";
 import useWeb3Modal from "./hooks/useWeb3Modal";
@@ -55,15 +55,13 @@ function App({ Component }) {
         </Box>
       </Flex >
       {/* </Header> */}
-      < Body>
+      <Box w="100%" bgGradient="linear(to-r, red.200 0%, orange.100 25%, yellow.300 50%)" >
+        <Center>
 
-        < VaultInfo />
-        <h1>---</h1>
-        <Button onClick={() => readOnChainData(provider)}>
-          Read On-Chain Balance
-        </Button>
-      </Body >
+          < VaultInfo />
 
+        </Center >
+      </Box>
     </ChakraProvider >
   );
 }

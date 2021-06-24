@@ -1,0 +1,5 @@
+{
+    "require": "hardhat/register",
+    "timeout": 20000,
+    "spec": "packages/contracts/test/**/*.js"
+}

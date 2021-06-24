@@ -1,8 +1,10 @@
 const hre = require("hardhat");
-
+const fs = require("promise-fs");
 const NFTPM = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
 const FACTORY_ADDRESS = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
 const usdcWethPoolAddress = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8";
+
+const PROJECT_ROOT = `${__dirname}/../../..`;
 
 async function main() {
   // manually to make sure everything is compiled
@@ -25,6 +27,11 @@ async function main() {
   //   name: "LiquidityPro",
   //   address: lp.address,
   // })
+
+  // copy abi to react-app
+  await fs.copyFile(`${PROJECT_ROOT}/packages/contracts/artifacts/contracts/LiquidityPro.sol/LiquidityPro.json`, `${PROJECT_ROOT}/packages/react-app/src/abi/LiquidityPro.json`);
+
+  // update .env
 
 }
 

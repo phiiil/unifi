@@ -18,6 +18,7 @@ describe("LiquidityPro", function () {
     const LiquidityPro = await ethers.getContractFactory("LiquidityPro");
     const lp = await LiquidityPro.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
     await lp.deployed();
+    console.log(lp.address);
 
     await network.provider.request({
       method: "hardhat_impersonateAccount",
@@ -30,7 +31,9 @@ describe("LiquidityPro", function () {
     const pool = new ethers.Contract(usdcWethPoolAddress, poolAbi, signer);
     let usdcBal = await usdc.balanceOf(impersonAddress);
 
-
+    let allowance = await usdc.allowance("0x3630220f243288E3EAC4C5676fC191CFf5756431", lp.address);
+    console.log(`USDC allowance for lp: ${allowance}`);
+    // transfer USDC to the UnifiVault
     await usdc.transfer(lp.address, usdcBal);
 
     let ethBal = await signer.getBalance();
@@ -66,18 +69,19 @@ describe("LiquidityPro", function () {
       fee,
       tickLower: '196260',
       tickUpper: '199920',
-      amount0Desired: '310555940140',
-      amount1Desired: '125608504651217967263',
+      amount0Desired: '31555940140',
+      amount1Desired: '12608504651217967263',
       amount0Min: '0',
       amount1Min: '0',
       recipient: lp.address,
       deadline: Math.floor(Date.now() / 1000 + 60 * 60)
     }
 
-    // console.log(params)
+    console.log("Minting...")
+    //console.log(JSON.stringify(params));
     // usdcBal = await usdc.balanceOf(impersonAddress);
-    await lp.mintPosition(params);
-
+    let tx = await lp.mintPosition(params);
+    await tx.wait();
 
     console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
     console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
