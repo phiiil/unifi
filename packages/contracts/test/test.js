@@ -18,6 +18,7 @@ describe("LiquidityPro", function () {
     const LiquidityPro = await ethers.getContractFactory("LiquidityPro");
     const lp = await LiquidityPro.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
     await lp.deployed();
+    console.log(lp.address);
 
     await network.provider.request({
       method: "hardhat_impersonateAccount",
@@ -30,7 +31,8 @@ describe("LiquidityPro", function () {
     const pool = new ethers.Contract(usdcWethPoolAddress, poolAbi, signer);
     let usdcBal = await usdc.balanceOf(impersonAddress);
 
-
+    let allowance = await usdc.allowance("0x3630220f243288E3EAC4C5676fC191CFf5756431", lp.address);
+    console.log(`USDC allowance for lp: ${allowance}`);
     await usdc.transfer(lp.address, usdcBal);
 
     let ethBal = await signer.getBalance();

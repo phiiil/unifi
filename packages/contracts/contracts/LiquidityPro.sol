@@ -182,4 +182,18 @@ contract LiquidityPro {
         weth9.deposit{value: msg.value}();
         lps[msg.sender].tokens[address(weth9)] += msg.value;
     }
+
+    /**
+     * Receive token into the UnifVault
+     */
+    function deposit(address _tokenAddress, uint256 _amount) external {
+        console.log("deposit");
+        console.log(_tokenAddress);
+        console.log(_amount);
+        IERC20Minimal token = IERC20Minimal(_tokenAddress);
+        // todo check allowance
+        token.transferFrom(msg.sender, address(this), _amount);
+        lps[msg.sender].tokens[_tokenAddress] += _amount;
+        //emit DepositSuccessful(from_, to_, amount_);
+    }
 }

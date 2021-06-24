@@ -4,7 +4,11 @@ const { ethers } = require("hardhat");
 
 TestUtils = {
 
+    ONE_ETH: ethers.utils.parseEther('1'),
     FOUR_ETH: ethers.utils.parseEther('4'),
+
+    TWO_USDC: ethers.utils.parseUnits('2', "mwei"),
+
     FACTORY_ADDR: "0x1F98431c8aD98523631AE4a59f267346ea31F984",
     WETH_ADDR: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
     NFTPM_ADDR: "0xC36442b4a4522E871399CD717aBDD847Ab11FE88",

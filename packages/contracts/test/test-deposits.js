@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { FACTORY_ADDR, FOUR_ETH, USDC_ADDR, WETH_ADDR, NFTPM_ADDR, POOL_ADDR, IMP_ADDR } = require("./testutils.js");
+const { TWO_USDC, FOUR_ETH } = require("./testutils.js");
+const { FACTORY_ADDR, USDC_ADDR, WETH_ADDR, NFTPM_ADDR, POOL_ADDR, IMP_ADDR } = require("./testutils.js");
 const usdcAbi = require('../abi/MockERC20.json').abi;
 const nftAbi = require('../abi/NonfungiblePositionManager.json');
 const poolAbi = require('../abi/IUniswapV3Pool.json').abi;
@@ -31,12 +32,25 @@ describe("Deposits should", function () {
         lp = lp.connect(signer);
     });
 
-    it("wrap ETH into WETH token", async function () {
+    it("Wrap ETH into WETH token", async function () {
         let tx = await signer.sendTransaction({ to: lp.address, value: FOUR_ETH });
         await tx.wait();
 
         const wethBalance = await lp.getBalance(WETH_ADDR);
         console.log(wethBalance.toString());
         expect(wethBalance).to.equal(FOUR_ETH, "balance should be in UnifiVault");
+    });
+
+    it("Accept USDC tokens", async function () {
+        const testAmount = TWO_USDC;
+        // allowance
+        const usdc = new ethers.Contract(USDC_ADDR, usdcAbi, signer);
+        //(await usdc.approve(lp.address, testAmount)).wait();
+        // deposit
+        let tx = await lp.deposit(USDC_ADDR, testAmount);
+        await tx.wait();
+        const b = await lp.getBalance(USDC_ADDR);
+        console.log(b.toString());
+        expect(b).to.equal(testAmount, "balance should be in UnifiVault");
     });
 });
