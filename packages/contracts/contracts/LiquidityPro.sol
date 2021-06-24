@@ -23,6 +23,15 @@ contract LiquidityPro {
     uint128 public totalLiquidity;
     uint256 public vaultTokenId;
 
+    // keep a structure containing all tokens and position nfts
+    struct assets {
+        // mapping from token address to amount in the vault
+        mapping(address => uint256) tokens;
+        // todo: add liquidity positions
+    }
+
+    mapping(address => assets) lps;
+
     constructor(
         IUniswapV3Factory _factory,
         INonfungiblePositionManager _nonfungiblePositionManager,
@@ -144,11 +153,33 @@ contract LiquidityPro {
         return address(this).balance;
     }
 
+    /**
+     * Get the grand total balance of WETH help by the UnifiVault.
+     */
     function getWethBalance() public view returns (uint256) {
         return weth9.balanceOf(address(this));
     }
 
+    /**
+     * Get the balance for a lp for a specific token address.
+     * @return tokenAmount uint amount of token in the UnifiVault for this lp
+     */
+    function getBalance(address tokenAddress)
+        public
+        view
+        returns (uint256 tokenAmount)
+    {
+        return lps[msg.sender].tokens[tokenAddress];
+    }
+
+    /**
+     * Receive ETH from a lp.
+     * 1. The ETH is wrapped in WETH and deposited under
+     * the UnifiVault's address in the WETH contract.
+     * 2. Store the value in the internal lp mapping
+     */
     receive() external payable {
         weth9.deposit{value: msg.value}();
+        lps[msg.sender].tokens[address(weth9)] += msg.value;
     }
 }
