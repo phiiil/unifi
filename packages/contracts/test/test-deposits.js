@@ -45,7 +45,7 @@ describe("Deposits should", function () {
         const testAmount = TWO_USDC;
         // allowance
         const usdc = new ethers.Contract(USDC_ADDR, usdcAbi, signer);
-        //(await usdc.approve(lp.address, testAmount)).wait();
+        (await usdc.approve(lp.address, testAmount)).wait();
         // deposit
         let tx = await lp.deposit(USDC_ADDR, testAmount);
         await tx.wait();
