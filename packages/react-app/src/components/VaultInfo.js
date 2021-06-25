@@ -1,17 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import {
-    Stat,
-    StatLabel,
-    StatNumber,
-    StatHelpText,
-    StatArrow,
-    StatGroup,
-} from "@chakra-ui/react"
-import { Center, Divider, Button, Image, Box, HStack, VStack } from "@chakra-ui/react"
-import { FormControl, NumberInput, NumberInputField } from "@chakra-ui/react"
-import { Link } from "@chakra-ui/react"
-import { ExternalLinkIcon } from '@chakra-ui/icons'
+import { Center, Divider, Button, Box, HStack, VStack } from "@chakra-ui/react"
 import { Contract } from "@ethersproject/contracts";
 import TokenBox from "./TokenBox.js"
 import useWeb3Modal from "../hooks/useWeb3Modal";
@@ -38,8 +27,6 @@ function VaultInfo() {
         if (provider) {
             console.log('Getting Vault Info...')
             const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
-            const unifiAbi = {};
-
             const unifiContract = new Contract(unifiAddress, Unifi.abi, provider);
             let tl = await unifiContract.getTotalLiquidity();
             setTotalLiquidity(tl.toString());
