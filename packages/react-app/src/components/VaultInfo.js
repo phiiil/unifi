@@ -8,8 +8,12 @@ import {
     StatArrow,
     StatGroup,
 } from "@chakra-ui/react"
-import { Center, Divider, Button, Image, Box, Flex, Spacer } from "@chakra-ui/react"
+import { Center, Divider, Button, Image, Box, HStack, VStack } from "@chakra-ui/react"
+import { FormControl, NumberInput, NumberInputField } from "@chakra-ui/react"
+import { Link } from "@chakra-ui/react"
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Contract } from "@ethersproject/contracts";
+import TokenBox from "./TokenBox.js"
 import useWeb3Modal from "../hooks/useWeb3Modal";
 import Unifi from '../abi/LiquidityPro.json'
 
@@ -21,8 +25,8 @@ import Unifi from '../abi/LiquidityPro.json'
 function VaultInfo() {
     const [provider] = useWeb3Modal();
     const [totalLiquidity, setTotalLiquidity] = useState();
-    const [token0, setToken0] = useState('0x0000000000000000');
-    const [token1, setToken1] = useState('0x0000000000000000');
+    const [token0, setToken0] = useState(null);
+    const [token1, setToken1] = useState(null);
 
     useEffect(() => {
         if (provider) {
@@ -48,36 +52,22 @@ function VaultInfo() {
     };
 
     return (
-        <Box >
+        <VStack color="white">
             <Box>
                 Total Liquidity: {totalLiquidity}
             </Box>
+
             <Divider />
-            <Flex color="white">
-                <Box bg="gray.800" maxW="sm" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
-                    <Stat>
-                        <Image boxSize="2em" src={`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${token0}/logo.png`} />
-                        <StatLabel>Token0</StatLabel>
-                        <StatNumber>USDC</StatNumber>
-                        <StatHelpText>{token0}</StatHelpText>
-                    </Stat>
-                </Box>
-                <Spacer />
-                <Box bg="gray.800" maxW="sm" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
-                    <Stat>
-                        <Image boxSize="2em" src={`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${token1}/logo.png`} />
-                        <StatLabel>Token1</StatLabel>
-                        <StatNumber>WETH</StatNumber>
-                        <StatHelpText>{token1}</StatHelpText>
-                    </Stat>
-                </Box>
-            </Flex>
+            <HStack spacing="12 ">
+                <TokenBox address={token0} />
+                <TokenBox address={token1} />
+            </HStack>
 
             <Center>
                 <Button colorScheme="yellow" size="lg">Deposit</Button>
                 <Button colorScheme="pink" size="lg">Mint</Button>
             </Center>
-        </Box>
+        </VStack>
     )
 }
 

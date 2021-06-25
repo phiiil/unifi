@@ -3,7 +3,7 @@ import { Button } from ".";
 import { useEffect, useState } from "react";
 import useWeb3Modal from "../hooks/useWeb3Modal";
 import { Currency, Token, CurrencyAmount, Ether } from '@uniswap/sdk-core'
-
+import { ExternalLinkIcon } from '@chakra-ui/icons'
 /**
  * 3 buttons to display wallet info in the header
  * 
