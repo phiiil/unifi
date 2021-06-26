@@ -14,7 +14,7 @@ describe("Deposits should", function () {
     before(async () => {
         console.log("before...")
         // deploy contract
-        const LiquidityPro = await ethers.getContractFactory("LiquidityPro");
+        const LiquidityPro = await ethers.getContractFactory("UnifiVault");
         lp = await LiquidityPro.deploy(FACTORY_ADDR, NFTPM_ADDR, POOL_ADDR);
         await lp.deployed();
 

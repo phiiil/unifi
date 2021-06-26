@@ -8,26 +8,34 @@ import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@uniswap/v3-core/contracts/interfaces/IERC20Minimal.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/external/IWETH9.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 // this is just a work in progress test contract.
 
-contract LiquidityPro {
-    // address public factoryAddress;
-    // address public nonfungiblePositionManagerAddress;
+contract UnifiVault {
     IUniswapV3Factory factory;
     INonfungiblePositionManager nonfungiblePositionManager;
     IUniswapV3Pool pool;
+    IQuoter quoter = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
+    ISwapRouter router =
+        ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    IWETH9 weth9 = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
     IERC20Minimal token0;
     IERC20Minimal token1;
-    IWETH9 weth9 = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+
     uint128 public totalLiquidity;
     uint256 public vaultTokenId;
+    uint256 public priceToken0;
+    uint256 public requiredAmount0;
+    uint256 public requiredAmount1;
+    uint256 public ethPrice;
 
     // keep a structure containing all tokens and position nfts
     struct assets {
         // mapping from token address to amount in the vault
         mapping(address => uint256) tokens;
-        // todo: add liquidity positions
     }
 
     mapping(address => assets) lps;
@@ -43,6 +51,72 @@ contract LiquidityPro {
         pool = _pool;
     }
 
+    function zapToken(address tokenAddress, uint256 amountIn) public {
+        weth9.approve(address(router), amountIn);
+        ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
+        .ExactInputSingleParams({
+            tokenIn: tokenAddress,
+            tokenOut: tokenAddress == address(weth9)
+                ? pool.token0()
+                : pool.token1(),
+            fee: pool.fee(),
+            recipient: address(this),
+            deadline: block.timestamp,
+            amountIn: amountIn,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+        // so far this is token0 amount.
+        uint256 amountOut = router.exactInputSingle(swapParams);
+        console.log(amountOut);
+
+
+            INonfungiblePositionManager.IncreaseLiquidityParams
+                memory increaseParams
+         = INonfungiblePositionManager.IncreaseLiquidityParams({
+            tokenId: vaultTokenId,
+            amount0Desired: amountOut,
+            amount1Desired: getWethBalance(),
+            amount0Min: 0,
+            amount1Min: 0,
+            deadline: block.timestamp
+        });
+
+        // called addLiquidity
+        addLiquidity(increaseParams);
+    }
+
+    // call it addLiquidity to differentiate from the increaseLiquidity from NFT PM
+    function addLiquidity(
+        INonfungiblePositionManager.IncreaseLiquidityParams memory params
+    )
+        public
+        returns (
+            uint128 liquidity,
+            uint256 amount0,
+            uint256 amount1
+        )
+    {
+        (liquidity, amount0, amount1) = nonfungiblePositionManager
+        .increaseLiquidity(params);
+    }
+
+    function updateWethPrice() public {
+        // (uint160 sqrtPriceX96, , , , , , ) = pool.slot0();
+        uint256 amountIn = 1 ether;
+        uint24 fee = pool.fee();
+        uint160 sqrtPriceLimitX96 = 0;
+
+        ethPrice = quoter.quoteExactInputSingle(
+            pool.token1(),
+            pool.token0(),
+            fee,
+            amountIn,
+            sqrtPriceLimitX96 // unSafeMath for slippage
+        );
+        // console.log("eth price sol", ethPrice);
+    }
+
     function mintPosition(INonfungiblePositionManager.MintParams memory params)
         public
         returns (
@@ -52,23 +126,7 @@ contract LiquidityPro {
             uint256 amount1
         )
     {
-        //(sqrtPriceX96, tick, , , , , ) = pool.slot0();
-
         // https://etherscan.io/tx/0xae3cd10be22debaf04f6e2e0d490ad633632705b10b6c76300228ecc2af4f050#eventlog
-        // INonfungiblePositionManager.MintParams memory params =
-        //     INonfungiblePositionManager.MintParams({
-        //         token0: pool.token0(),
-        //         token1: pool.token1(),
-        //         fee: pool.fee(),
-        //         tickLower: 196260,
-        //         tickUpper: 199920,
-        //         amount0Desired: 310555940140,
-        //         amount1Desired: 125608504651217967263,
-        //         amount0Min: 0,
-        //         amount1Min: 0,
-        //         recipient: address(this),
-        //         deadline: block.timestamp + 1 days
-        //     });
 
         IERC20Minimal(getToken0()).approve(
             address(nonfungiblePositionManager),
@@ -82,43 +140,43 @@ contract LiquidityPro {
         // (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
         //     .mint{value: address(this).balance}(params);
         (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
-            .mint(params);
+        .mint(params);
         totalLiquidity += liquidity;
         vaultTokenId = tokenId;
+        requiredAmount0 = amount0; // used to calc ratio of required amounts.
+        requiredAmount1 = amount1;
 
-        // (bool success, bytes memory returnData) =
-        //     address(nonfungiblePositionManager).call{
-        //         value: 135.608504651217967263 ether
-        //     }(abi.encodeWithSignature("mint(MintParams)", params));
-
-        // console.log(returnData);
-        // require(success, "failed mint");
-        return (tokenId, liquidity, amount0, amount1);
-        // console.log(sqrtPriceX96);
-        // console.log(tick); hardhat console doesnt work for int
+        // console.log("-----console in solidity------");
+        // console.log("amount0", amount0);
+        // console.log("amount1", amount1);
+        // console.log("-----console in solidity------");
     }
 
+    //  withdraw all the LP liquidity from NFT position manager
     function withdraw() public {
         console.log("vaultTokenId", vaultTokenId);
         console.log("total Liquidity", totalLiquidity);
-        INonfungiblePositionManager.DecreaseLiquidityParams memory params =
-            INonfungiblePositionManager.DecreaseLiquidityParams({
-                tokenId: vaultTokenId,
-                liquidity: totalLiquidity,
-                amount0Min: 0,
-                amount1Min: 0,
-                deadline: block.timestamp + 1 days
-            });
-        (uint256 amount0, uint256 amount1) =
-            nonfungiblePositionManager.decreaseLiquidity(params);
 
-        INonfungiblePositionManager.CollectParams memory cparams =
-            INonfungiblePositionManager.CollectParams({
-                tokenId: vaultTokenId,
-                recipient: address(this),
-                amount0Max: uint128(amount0),
-                amount1Max: uint128(amount1)
-            });
+
+            INonfungiblePositionManager.DecreaseLiquidityParams memory params
+         = INonfungiblePositionManager.DecreaseLiquidityParams({
+            tokenId: vaultTokenId,
+            liquidity: totalLiquidity,
+            amount0Min: 0,
+            amount1Min: 0,
+            deadline: block.timestamp
+        });
+        (uint256 amount0, uint256 amount1) = nonfungiblePositionManager
+        .decreaseLiquidity(params);
+
+
+            INonfungiblePositionManager.CollectParams memory cparams
+         = INonfungiblePositionManager.CollectParams({
+            tokenId: vaultTokenId,
+            recipient: address(this),
+            amount0Max: uint128(amount0),
+            amount1Max: uint128(amount1)
+        });
 
         (amount0, amount1) = nonfungiblePositionManager.collect(cparams);
     }
@@ -139,12 +197,13 @@ contract LiquidityPro {
     function getTokenBalance() public view returns (uint256) {
         // get the non-WETH token address and balance on vault contract.
         // assuming the pool is always WETH + another token
-        address tokenAddress =
-            pool.token0() == 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-                ? pool.token1()
-                : pool.token0();
-        uint256 tokenBalance =
-            IERC20Minimal(tokenAddress).balanceOf(address(this));
+        address tokenAddress = pool.token0() ==
+            0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+            ? pool.token1()
+            : pool.token0();
+        uint256 tokenBalance = IERC20Minimal(tokenAddress).balanceOf(
+            address(this)
+        );
         return tokenBalance;
     }
 
@@ -154,7 +213,7 @@ contract LiquidityPro {
     }
 
     /**
-     * Get the grand total balance of WETH help by the UnifiVault.
+     * Get the grand total balance of WETH held by the UnifiVault.
      */
     function getWethBalance() public view returns (uint256) {
         return weth9.balanceOf(address(this));

@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { BigNumber, ethers, utils } = require("hardhat");
 const usdcAbi = require('../abi/MockERC20.json').abi;
 const nftAbi = require('../abi/NonfungiblePositionManager.json');
 const poolAbi = require('../abi/IUniswapV3Pool.json').abi;
@@ -12,13 +12,21 @@ const wethAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2";
 const impersonAddress = "0x3630220f243288E3EAC4C5676fC191CFf5756431";
 const usdcWethPoolAddress = "0x8ad599c3A0ff1De082011EFDDc58f1908eb6e6D8";
 
-describe("LiquidityPro", function () {
+const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
+const TICK_SPACINGS = {
+  LOW: 10,
+  MEDIUM: 60,
+  HIGH: 200
+}
+
+describe("UnifiVault", function () {
   it("check balance", async function () {
     // deploy contract
-    const LiquidityPro = await ethers.getContractFactory("LiquidityPro");
-    const lp = await LiquidityPro.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
-    await lp.deployed();
-    console.log(lp.address);
+    const UnifiVault = await ethers.getContractFactory("UnifiVault");
+    const vault = await UnifiVault.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
+    await vault.deployed();
+    console.log(vault.address);
+    console.log(TICK_SPACINGS.MEDIUM)
 
     await network.provider.request({
       method: "hardhat_impersonateAccount",
@@ -31,92 +39,103 @@ describe("LiquidityPro", function () {
     const pool = new ethers.Contract(usdcWethPoolAddress, poolAbi, signer);
     let usdcBal = await usdc.balanceOf(impersonAddress);
 
-    let allowance = await usdc.allowance("0x3630220f243288E3EAC4C5676fC191CFf5756431", lp.address);
-    console.log(`USDC allowance for lp: ${allowance}`);
+    let allowance = await usdc.allowance("0x3630220f243288E3EAC4C5676fC191CFf5756431", vault.address);
+    console.log(`USDC allowance for vault: ${allowance}`);
     // transfer USDC to the UnifiVault
-    await usdc.transfer(lp.address, usdcBal);
+    await usdc.transfer(vault.address, usdcBal);
 
     let ethBal = await signer.getBalance();
 
     await signer.sendTransaction({
-      to: lp.address,
+      to: vault.address,
       value: ethers.utils.parseEther('200')
     });
 
-    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
-    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
+    console.log("LPcontract eth bal", ethers.utils.formatEther(await vault.getWethBalance()));
+    
     const { sqrtPriceX96, tick } = await pool.slot0();
     // console.log(sqrtPriceX96.toString())
     // console.log(tick)
     const fee = await pool.fee()
-    // INonfungiblePositionManager.MintParams memory params =
-    //         INonfungiblePositionManager.MintParams({
-    //             token0: pool.token0(),
-    //             token1: pool.token1(),
-    //             fee: pool.fee(),
-    //             tickLower: 196260,
-    //             tickUpper: 199920,
-    //             amount0Desired: 310555940140,
-    //             amount1Desired: 125608504651217967263,
-    //             amount0Min: 0,
-    //             amount1Min: 0,
-    //             recipient: address(this),
-    //             deadline: block.timestamp + 1 days
-    //         });
+    const amount0Desired = await vault.getTokenBalance();
+    const amount1Desired = await vault.getWethBalance();
+    // unit with params we know would work from mainnet fork.
     let params = {
       token0: usdcAddress,
       token1: wethAddress,
       fee,
       tickLower: '196260',
       tickUpper: '199920',
-      amount0Desired: '31555940140',
-      amount1Desired: '12608504651217967263',
+      amount0Desired,
+      // amount1Desired: '125608504651217967263',
+      amount1Desired,
       amount0Min: '0',
       amount1Min: '0',
-      recipient: lp.address,
-      deadline: Math.floor(Date.now() / 1000 + 60 * 60)
+      recipient: vault.address,
+      deadline
     }
 
     console.log("Minting...")
     //console.log(JSON.stringify(params));
     // usdcBal = await usdc.balanceOf(impersonAddress);
-    let tx = await lp.mintPosition(params);
+    let tx = await vault.mintPosition(params);
     await tx.wait();
+    
+    const requiredAmount0 = ethers.utils.formatUnits((await vault.requiredAmount0()).toString(), '6');
+    const requiredAmount1 = ethers.utils.formatEther((await vault.requiredAmount1()).toString());
 
-    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
-    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+    let requiredRatio = requiredAmount0 / (requiredAmount1);
 
-    // // console.log(Number(await lp.getTotalLiquidity()));
-    await lp.withdraw();
-    // // console.log("liquidity", liquidity);
-    // console.log((await pm.balanceOf(lp.address)).toString());
-    const tokenId = (await pm.tokenOfOwnerByIndex(lp.address, 0)).toString();
+    console.log("required amount0", requiredAmount0);
+    console.log("required amount1", requiredAmount1);
+    console.log("required ratio", requiredRatio);
 
-    console.log("after withdraw from NFT");
-    console.log("LPcontract weth bal", ethers.utils.formatEther(await lp.getWethBalance()));
-    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
-
-
-    params = {
-      token0: usdcAddress,
-      token1: wethAddress,
-      fee,
-      tickLower: String(196260 + 60 * 2),
-      tickUpper: String(199920 - 60 * 2),
-      amount0Desired: '310555940140',
-      amount1Desired: '125608504651217967263',
-      amount0Min: '0',
-      amount1Min: '0',
-      recipient: lp.address,
-      deadline: Math.floor(Date.now() / 1000 + 60 * 60)
-    }
-    await lp.mintPosition(params);
-
-    console.log('----- minting new position -----')
-    console.log("LPcontract eth bal", ethers.utils.formatEther(await lp.getWethBalance()));
-    console.log("LPcontract token bal", ethers.utils.formatUnits(await lp.getTokenBalance(), '6'));
+    const wethBalance = Number(await vault.getWethBalance());
+    console.log("LPcontract token bal", (await vault.getTokenBalance()).toString());
+    console.log("LPcontract weth bal", wethBalance.toString());
+    
+    await vault.updateWethPrice();
+    const ethPrice = ethers.utils.formatUnits((await vault.ethPrice()), '6') ;
+    console.log("eth price js", ethPrice.toString())
+    requiredRatio = requiredRatio / ethPrice;
+    console.log(requiredRatio);
+    
+    let wethToSwap = wethBalance * requiredRatio / (1 + requiredRatio);
+    console.log("eth to swap", wethToSwap);
 
 
+    console.log("----zapping weth-----")
+    await vault.zapToken(wethAddress, wethToSwap.toString());
+    // await vault.withdraw();
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
+    console.log("LPcontract weth bal", ethers.utils.formatEther(await vault.getWethBalance()));
+
+    // const tokenId = (await pm.tokenOfOwnerByIndex(vault.address, 0)).toString();
+
+    // console.log("after withdraw from NFT");
+    // console.log("LPcontract weth bal", ethers.utils.formatEther(await vault.getWethBalance()));
+    // console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
+
+    // rebalance with new params
+    // params = {
+    //   token0: usdcAddress,
+    //   token1: wethAddress,
+    //   fee,
+    //   tickLower: String(196260 + TICK_SPACINGS.MEDIUM * 2),
+    //   tickUpper: String(199920 - TICK_SPACINGS.MEDIUM * 2),
+    //   amount0Desired: '310555940140',
+    //   amount1Desired: '125608504651217967263',
+    //   amount0Min: '0',
+    //   amount1Min: '0',
+    //   recipient: vault.address,
+    //   deadline
+    // }
+    // await vault.mintPosition(params);
+
+    // console.log('----- minting new position -----')
+    // console.log("LPcontract eth bal", ethers.utils.formatEther(await vault.getWethBalance()));
+    // console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
 
 
     // const position = await pm.positions(tokenId);
