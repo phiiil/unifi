@@ -1,5 +1,5 @@
 {
-  "name": "@project/monorepo",
+  "name": "@unifi/monorepo",
   "version": "1.0.0",
   "keywords": [
     "ethereum",
@@ -9,16 +9,16 @@
   ],
   "private": true,
   "scripts": {
-    "subgraph:auth": "yarn workspace @project/subgraph auth",
-    "subgraph:codegen": "yarn workspace @project/subgraph codegen",
-    "subgraph:build": "yarn workspace @project/subgraph build",
-    "subgraph:deploy": "yarn workspace @project/subgraph deploy",
-    "react-app:build": "yarn workspace @project/react-app build",
-    "react-app:eject": "yarn workspace @project/react-app eject",
-    "react-app:ipfs": "yarn workspace @project/react-app ipfs",
-    "react-app:start": "yarn workspace @project/react-app start",
-    "react-app:test": "yarn workspace @project/react-app test",
-    "contracts:test": "yarn workspace @project/contracts test"
+    "subgraph:auth": "yarn workspace @unifi/subgraph auth",
+    "subgraph:codegen": "yarn workspace @unifi/subgraph codegen",
+    "subgraph:build": "yarn workspace @unifi/subgraph build",
+    "subgraph:deploy": "yarn workspace @unifi/subgraph deploy",
+    "react-app:build": "yarn workspace @unifi/react-app build",
+    "react-app:eject": "yarn workspace @unifi/react-app eject",
+    "react-app:ipfs": "yarn workspace @unifi/react-app ipfs",
+    "react-app:start": "yarn workspace @unifi/react-app start",
+    "react-app:test": "yarn workspace @unifi/react-app test",
+    "contracts:test": "yarn workspace @unifi/contracts test"
   },
   "workspaces": {
     "nohoist": [
