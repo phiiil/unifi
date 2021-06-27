@@ -51,6 +51,42 @@ contract UnifiVault {
         pool = _pool;
     }
 
+    // call this func from front end, and send ether along with tx.
+    function addLiquidityEth(uint256 amountIn) public payable {
+        weth9.deposit{value: msg.value}();
+        weth9.approve(address(router), amountIn);
+        ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
+        .ExactInputSingleParams({
+            tokenIn: pool.token1(),
+            tokenOut: pool.token0(),
+            fee: pool.fee(),
+            recipient: address(this),
+            deadline: block.timestamp,
+            amountIn: amountIn,
+            amountOutMinimum: 0,
+            sqrtPriceLimitX96: 0
+        });
+        // so far this is token0 amount.
+        uint256 amountOut = router.exactInputSingle(swapParams);
+        console.log("swapped ", amountIn, "eth");
+        console.log("received ", amountOut, "usdc");
+
+
+            INonfungiblePositionManager.IncreaseLiquidityParams
+                memory increaseParams
+         = INonfungiblePositionManager.IncreaseLiquidityParams({
+            tokenId: vaultTokenId,
+            amount0Desired: amountOut,
+            amount1Desired: getWethBalance(),
+            amount0Min: 0,
+            amount1Min: 0,
+            deadline: block.timestamp
+        });
+
+        // called addLiquidity
+        addLiquidity(increaseParams);
+    }
+
     function zapToken(address tokenAddress, uint256 amountIn) public {
         weth9.approve(address(router), amountIn);
         ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
