@@ -53,7 +53,7 @@ describe("UnifiVault", function () {
 
     console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
     console.log("LPcontract eth bal", ethers.utils.formatEther(await vault.getWethBalance()));
-    
+
     const { sqrtPriceX96, tick } = await pool.slot0();
     // console.log(sqrtPriceX96.toString())
     // console.log(tick)
@@ -81,7 +81,7 @@ describe("UnifiVault", function () {
     // usdcBal = await usdc.balanceOf(impersonAddress);
     let tx = await vault.mintPosition(params);
     await tx.wait();
-    
+
     const requiredAmount0 = ethers.utils.formatUnits((await vault.requiredAmount0()).toString(), '6');
     const requiredAmount1 = ethers.utils.formatEther((await vault.requiredAmount1()).toString());
 
@@ -94,13 +94,13 @@ describe("UnifiVault", function () {
     const wethBalance = Number(await vault.getWethBalance());
     console.log("LPcontract token bal", (await vault.getTokenBalance()).toString());
     console.log("LPcontract weth bal", wethBalance.toString());
-    
+
     await vault.updateWethPrice();
     const ethPrice = ethers.utils.formatUnits((await vault.ethPrice()), '6') ;
     console.log("eth price js", ethPrice.toString())
     requiredRatio = requiredRatio / ethPrice;
     console.log(requiredRatio);
-    
+
     let wethToSwap = wethBalance * requiredRatio / (1 + requiredRatio);
     console.log("eth to swap", wethToSwap);
 
