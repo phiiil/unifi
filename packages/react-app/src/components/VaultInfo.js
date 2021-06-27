@@ -34,7 +34,6 @@ function VaultInfo() {
      * Call fucntion on the Unifi contract to display information
      */
     const getVaultInfo = async () => {
-        // if (provider) {
         console.log('Getting Vault Info...')
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
         const unifi = new Contract(unifiAddress, Unifi.abi, provider);
@@ -42,10 +41,6 @@ function VaultInfo() {
         setTotalLiquidity(tl.toString());
         setToken0(await unifi.getToken0());
         setToken1(await unifi.getToken1());
-        // }
-        // else {
-        //     console.log('no provider')
-        // }
     };
 
     /**
@@ -73,6 +68,38 @@ function VaultInfo() {
 
     }
 
+    const mint = async (e) => {
+        console.log("Mint New Position");
+        if (provider) {
+            const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
+            const unifi = new Contract(unifiAddress, Unifi.abi, provider);
+            const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
+
+            const fee = await uniswapPool.fee()
+            const amount0Desired = await unifi.getTokenBalance();
+            const amount1Desired = await unifi.getWethBalance();
+            const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
+
+            let mintParams = {
+                token0: token0,
+                token1: token1,
+                fee,
+                tickLower: '196260',
+                tickUpper: '199920',
+                amount0Desired,
+                // amount1Desired: '125608504651217967263',
+                amount1Desired,
+                amount0Min: '0',
+                amount1Min: '0',
+                recipient: unifiAddress,
+                deadline
+            }
+            console.log(mintParams);
+            let mintTx = await unifi.mintPosition(mintParams);
+            console.log(mintTx);
+        }
+    }
+
     return (
         <VStack color="white">
             <Box>
@@ -87,7 +114,7 @@ function VaultInfo() {
 
             <Center>
                 <Button colorScheme="yellow" size="lg">Deposit</Button>
-                <Button colorScheme="pink" size="lg">Mint</Button>
+                <Button colorScheme="pink" size="lg" onClick={mint}>Mint</Button>
             </Center>
         </VStack>
     )

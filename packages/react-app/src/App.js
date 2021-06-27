@@ -10,19 +10,6 @@ import WalletHeader from "./components/WalletHeader.js";
 // import { getDefaultProvider } from "@ethersproject/providers";
 import GET_TRANSFERS from "./graphql/subgraph";
 
-// async function readOnChainData(provider) {
-//   //const defaultProvider = getDefaultProvider();
-//   // const ceaErc20 = new Contract(addresses.ceaErc20, abis.erc20, defaultProvider);
-//   // const tokenBalance = await ceaErc20.balanceOf("0x3f8CB69d9c0ED01923F11c829BaE4D9a4CB6c82C");
-//   // console.log({ tokenBalance: tokenBalance.toString() });
-//   // A pre-defined address that owns some CEAERC20 tokens
-//   const signer = provider.getSigner();
-//   const address = await signer.getAddress();
-//   const rawBalance = await provider.getBalance(address);
-//   const balance = ethers.utils.formatEther(rawBalance);
-//   console.log(`ETH balance: ${balance}`);
-// }
-
 
 function App({ Component }) {
 
