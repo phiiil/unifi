@@ -4,7 +4,6 @@ const usdcAbi = require('../abi/MockERC20.json').abi;
 const nftAbi = require('../abi/NonfungiblePositionManager.json');
 const poolAbi = require('../abi/IUniswapV3Pool.json').abi;
 
-
 const NFTPM = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88";
 const FACTORY_ADDRESS = "0x1F98431c8aD98523631AE4a59f267346ea31F984";
 const usdcAddress = "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
@@ -85,6 +84,7 @@ describe("UnifiVault", function () {
     const requiredAmount0 = ethers.utils.formatUnits((await vault.requiredAmount0()).toString(), '6');
     const requiredAmount1 = ethers.utils.formatEther((await vault.requiredAmount1()).toString());
 
+    // this is the ratio of USDC/WETH amounts required to add liquidity to current NFT position
     let requiredRatio = requiredAmount0 / (requiredAmount1);
 
     console.log("required amount0", requiredAmount0);
@@ -97,10 +97,17 @@ describe("UnifiVault", function () {
 
     await vault.updateWethPrice();
     const ethPrice = ethers.utils.formatUnits((await vault.ethPrice()), '6') ;
-    console.log("eth price js", ethPrice.toString())
+    console.log("eth price js", ethPrice.toString());
+
+    // normalize the ratio on same token price level. this ratio reflects the true value ratio of the two tokens. here convert it to eth value ratio.
     requiredRatio = requiredRatio / ethPrice;
     console.log(requiredRatio);
+<<<<<<< HEAD
 
+=======
+    
+    // calculate the amount of weth to swap into USDC.
+>>>>>>> 5b4ae890c9d6d1b6813aef8b0b823de07cd7de9f
     let wethToSwap = wethBalance * requiredRatio / (1 + requiredRatio);
     console.log("eth to swap", wethToSwap);
 
@@ -111,6 +118,17 @@ describe("UnifiVault", function () {
     console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
     console.log("LPcontract weth bal", ethers.utils.formatEther(await vault.getWethBalance()));
 
+    console.log("----add liquidity ETH-----")
+    let signerEthBalance = await signer.getBalance();
+    console.log("signer eth balance", ethers.utils.formatEther(signerEthBalance));
+
+    // say we want to zap 30 eth on front end.
+    const ethToZap = ethers.utils.parseEther('30');
+    wethToSwap = ethToZap * requiredRatio / (1 + requiredRatio);
+    
+    await vault.connect(signer).addLiquidityEth(wethToSwap.toString(), {value: ethToZap});
+    signerEthBalance = await signer.getBalance();
+    console.log("signer eth balance", ethers.utils.formatEther(signerEthBalance));
     // const tokenId = (await pm.tokenOfOwnerByIndex(vault.address, 0)).toString();
 
     // console.log("after withdraw from NFT");
