@@ -71,32 +71,38 @@ function VaultInfo() {
     const mint = async (e) => {
         console.log("Mint New Position");
         if (provider) {
-            const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
-            const unifi = new Contract(unifiAddress, Unifi.abi, provider);
-            const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
+            try {
+                const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
+                // connect as signer to mintPosition
+                const unifi = new Contract(unifiAddress, Unifi.abi, provider.getSigner());
+                const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
 
-            const fee = await uniswapPool.fee()
-            const amount0Desired = await unifi.getTokenBalance();
-            const amount1Desired = await unifi.getWethBalance();
-            const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
+                const fee = await uniswapPool.fee()
+                const amount0Desired = await unifi.getTokenBalance();
+                const amount1Desired = await unifi.getWethBalance();
+                const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
 
-            let mintParams = {
-                token0: token0,
-                token1: token1,
-                fee,
-                tickLower: '196260',
-                tickUpper: '199920',
-                amount0Desired,
-                // amount1Desired: '125608504651217967263',
-                amount1Desired,
-                amount0Min: '0',
-                amount1Min: '0',
-                recipient: unifiAddress,
-                deadline
+                let mintParams = {
+                    token0: token0,
+                    token1: token1,
+                    fee,
+                    tickLower: '196260',
+                    tickUpper: '199920',
+                    amount0Desired,
+                    // amount1Desired: '125608504651217967263',
+                    amount1Desired,
+                    amount0Min: '0',
+                    amount1Min: '0',
+                    recipient: unifiAddress,
+                    deadline
+                }
+                console.log(mintParams);
+                let mintTx = await unifi.mintPosition(mintParams);
+                console.log(mintTx);
             }
-            console.log(mintParams);
-            let mintTx = await unifi.mintPosition(mintParams);
-            console.log(mintTx);
+            catch (e) {
+                console.log(e);
+            }
         }
     }
 
