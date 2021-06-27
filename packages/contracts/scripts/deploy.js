@@ -10,11 +10,11 @@ async function main() {
   // manually to make sure everything is compiled
   await hre.run('compile');
 
-  const LiquidityPro = await hre.ethers.getContractFactory("LiquidityPro");
-  const lp = await LiquidityPro.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
+  const UnifiVault = await hre.ethers.getContractFactory("UnifiVault");
+  const vault = await UnifiVault.deploy(FACTORY_ADDRESS, NFTPM, usdcWethPoolAddress);
 
-  await lp.deployed();
-  console.log("LPPro deployed to:", lp.address);
+  await vault.deployed();
+  console.log("UnifiVault deployed to:", vault.address);
 
   // // Trying to push to tenderly...
   // await hre.tenderly.persistArtifacts({
@@ -29,7 +29,7 @@ async function main() {
   // })
 
   // copy abi to react-app
-  await fs.copyFile(`${PROJECT_ROOT}/packages/contracts/artifacts/contracts/LiquidityPro.sol/LiquidityPro.json`, `${PROJECT_ROOT}/packages/react-app/src/abi/LiquidityPro.json`);
+  await fs.copyFile(`${PROJECT_ROOT}/packages/contracts/artifacts/contracts/UnifiVault.sol/UnifiVault.json`, `${PROJECT_ROOT}/packages/react-app/src/abi/UnifiVault.json`);
 
   // update .env
 
