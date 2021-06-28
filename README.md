@@ -64,3 +64,7 @@ The aim to deliver a first version which is both usable and provide a minimal fu
 # Realted projects
 - [Defi Lab: Uniswap V3 Strategy Simulator](https://defi-lab.xyz/uniswapv3simulator)
 - [Visor: Liquidity Management on Uniswap v3](https://www.visor.finance/)
+
+
+# Development Notes
+[Dev Notes](./README-dev.md)

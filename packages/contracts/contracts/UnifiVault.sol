@@ -11,7 +11,11 @@ import "@uniswap/v3-periphery/contracts/interfaces/external/IWETH9.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-// this is just a work in progress test contract.
+/**
+ * Unifi Vault is the main contract.
+ *
+ * It offers
+ */
 
 contract UnifiVault {
     IUniswapV3Factory factory;
@@ -22,8 +26,8 @@ contract UnifiVault {
         ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     IWETH9 weth9 = IWETH9(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
-    IERC20Minimal token0;
-    IERC20Minimal token1;
+    //    IERC20Minimal token0;
+    //    IERC20Minimal token1;
 
     uint128 public totalLiquidity;
     uint256 public vaultTokenId;
@@ -38,8 +42,13 @@ contract UnifiVault {
         mapping(address => uint256) tokens;
     }
 
+    // mapping of liquidity providers (lps) to assets they own in the UnifiVault
     mapping(address => assets) lps;
 
+    /**
+     * Deploy the UnifiVault
+     * Currently only handle the WETH-USDC pool.
+     */
     constructor(
         IUniswapV3Factory _factory,
         INonfungiblePositionManager _nonfungiblePositionManager,
@@ -55,17 +64,17 @@ contract UnifiVault {
     function addLiquidityEth(uint256 amountIn) public payable {
         weth9.deposit{value: msg.value}();
         weth9.approve(address(router), amountIn);
-        ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
-        .ExactInputSingleParams({
-            tokenIn: pool.token1(),
-            tokenOut: pool.token0(),
-            fee: pool.fee(),
-            recipient: address(this),
-            deadline: block.timestamp,
-            amountIn: amountIn,
-            amountOutMinimum: 0,
-            sqrtPriceLimitX96: 0
-        });
+        ISwapRouter.ExactInputSingleParams memory swapParams =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: pool.token1(),
+                tokenOut: pool.token0(),
+                fee: pool.fee(),
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
         // so far this is token0 amount.
         uint256 amountOut = router.exactInputSingle(swapParams);
         console.log("swapped ", amountIn, "eth");
@@ -74,14 +83,15 @@ contract UnifiVault {
 
             INonfungiblePositionManager.IncreaseLiquidityParams
                 memory increaseParams
-         = INonfungiblePositionManager.IncreaseLiquidityParams({
-            tokenId: vaultTokenId,
-            amount0Desired: amountOut,
-            amount1Desired: getWethBalance(),
-            amount0Min: 0,
-            amount1Min: 0,
-            deadline: block.timestamp
-        });
+         =
+            INonfungiblePositionManager.IncreaseLiquidityParams({
+                tokenId: vaultTokenId,
+                amount0Desired: amountOut,
+                amount1Desired: getWethBalance(),
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            });
 
         // called addLiquidity
         addLiquidity(increaseParams);
@@ -89,19 +99,19 @@ contract UnifiVault {
 
     function zapToken(address tokenAddress, uint256 amountIn) public {
         weth9.approve(address(router), amountIn);
-        ISwapRouter.ExactInputSingleParams memory swapParams = ISwapRouter
-        .ExactInputSingleParams({
-            tokenIn: tokenAddress,
-            tokenOut: tokenAddress == address(weth9)
-                ? pool.token0()
-                : pool.token1(),
-            fee: pool.fee(),
-            recipient: address(this),
-            deadline: block.timestamp,
-            amountIn: amountIn,
-            amountOutMinimum: 0,
-            sqrtPriceLimitX96: 0
-        });
+        ISwapRouter.ExactInputSingleParams memory swapParams =
+            ISwapRouter.ExactInputSingleParams({
+                tokenIn: tokenAddress,
+                tokenOut: tokenAddress == address(weth9)
+                    ? pool.token0()
+                    : pool.token1(),
+                fee: pool.fee(),
+                recipient: address(this),
+                deadline: block.timestamp,
+                amountIn: amountIn,
+                amountOutMinimum: 0,
+                sqrtPriceLimitX96: 0
+            });
         // so far this is token0 amount.
         uint256 amountOut = router.exactInputSingle(swapParams);
         console.log(amountOut);
@@ -109,14 +119,15 @@ contract UnifiVault {
 
             INonfungiblePositionManager.IncreaseLiquidityParams
                 memory increaseParams
-         = INonfungiblePositionManager.IncreaseLiquidityParams({
-            tokenId: vaultTokenId,
-            amount0Desired: amountOut,
-            amount1Desired: getWethBalance(),
-            amount0Min: 0,
-            amount1Min: 0,
-            deadline: block.timestamp
-        });
+         =
+            INonfungiblePositionManager.IncreaseLiquidityParams({
+                tokenId: vaultTokenId,
+                amount0Desired: amountOut,
+                amount1Desired: getWethBalance(),
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            });
 
         // called addLiquidity
         addLiquidity(increaseParams);
@@ -134,7 +145,9 @@ contract UnifiVault {
         )
     {
         (liquidity, amount0, amount1) = nonfungiblePositionManager
-        .increaseLiquidity(params);
+            .increaseLiquidity(params);
+
+        totalLiquidity += liquidity;
     }
 
     function updateWethPrice() public {
@@ -176,7 +189,7 @@ contract UnifiVault {
         // (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
         //     .mint{value: address(this).balance}(params);
         (tokenId, liquidity, amount0, amount1) = nonfungiblePositionManager
-        .mint(params);
+            .mint(params);
         totalLiquidity += liquidity;
         vaultTokenId = tokenId;
         requiredAmount0 = amount0; // used to calc ratio of required amounts.
@@ -193,26 +206,24 @@ contract UnifiVault {
         console.log("vaultTokenId", vaultTokenId);
         console.log("total Liquidity", totalLiquidity);
 
+        INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: vaultTokenId,
+                liquidity: totalLiquidity,
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            });
+        (uint256 amount0, uint256 amount1) =
+            nonfungiblePositionManager.decreaseLiquidity(params);
 
-            INonfungiblePositionManager.DecreaseLiquidityParams memory params
-         = INonfungiblePositionManager.DecreaseLiquidityParams({
-            tokenId: vaultTokenId,
-            liquidity: totalLiquidity,
-            amount0Min: 0,
-            amount1Min: 0,
-            deadline: block.timestamp
-        });
-        (uint256 amount0, uint256 amount1) = nonfungiblePositionManager
-        .decreaseLiquidity(params);
-
-
-            INonfungiblePositionManager.CollectParams memory cparams
-         = INonfungiblePositionManager.CollectParams({
-            tokenId: vaultTokenId,
-            recipient: address(this),
-            amount0Max: uint128(amount0),
-            amount1Max: uint128(amount1)
-        });
+        INonfungiblePositionManager.CollectParams memory cparams =
+            INonfungiblePositionManager.CollectParams({
+                tokenId: vaultTokenId,
+                recipient: address(this),
+                amount0Max: uint128(amount0),
+                amount1Max: uint128(amount1)
+            });
 
         (amount0, amount1) = nonfungiblePositionManager.collect(cparams);
     }
@@ -233,13 +244,12 @@ contract UnifiVault {
     function getTokenBalance() public view returns (uint256) {
         // get the non-WETH token address and balance on vault contract.
         // assuming the pool is always WETH + another token
-        address tokenAddress = pool.token0() ==
-            0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
-            ? pool.token1()
-            : pool.token0();
-        uint256 tokenBalance = IERC20Minimal(tokenAddress).balanceOf(
-            address(this)
-        );
+        address tokenAddress =
+            pool.token0() == 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2
+                ? pool.token1()
+                : pool.token0();
+        uint256 tokenBalance =
+            IERC20Minimal(tokenAddress).balanceOf(address(this));
         return tokenBalance;
     }
 

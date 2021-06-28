@@ -96,18 +96,13 @@ describe("UnifiVault", function () {
     console.log("LPcontract weth bal", wethBalance.toString());
 
     await vault.updateWethPrice();
-    const ethPrice = ethers.utils.formatUnits((await vault.ethPrice()), '6') ;
+    const ethPrice = ethers.utils.formatUnits((await vault.ethPrice()), '6');
     console.log("eth price js", ethPrice.toString());
 
     // normalize the ratio on same token price level. this ratio reflects the true value ratio of the two tokens. here convert it to eth value ratio.
     requiredRatio = requiredRatio / ethPrice;
     console.log(requiredRatio);
-<<<<<<< HEAD
-
-=======
-    
     // calculate the amount of weth to swap into USDC.
->>>>>>> 5b4ae890c9d6d1b6813aef8b0b823de07cd7de9f
     let wethToSwap = wethBalance * requiredRatio / (1 + requiredRatio);
     console.log("eth to swap", wethToSwap);
 
@@ -125,8 +120,8 @@ describe("UnifiVault", function () {
     // say we want to zap 30 eth on front end.
     const ethToZap = ethers.utils.parseEther('30');
     wethToSwap = ethToZap * requiredRatio / (1 + requiredRatio);
-    
-    await vault.connect(signer).addLiquidityEth(wethToSwap.toString(), {value: ethToZap});
+
+    await vault.connect(signer).addLiquidityEth(wethToSwap.toString(), { value: ethToZap });
     signerEthBalance = await signer.getBalance();
     console.log("signer eth balance", ethers.utils.formatEther(signerEthBalance));
     // const tokenId = (await pm.tokenOfOwnerByIndex(vault.address, 0)).toString();

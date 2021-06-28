@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "./src/index.js",
   "scripts": {
-    "test": "hardhat test"
+    "test": "hardhat test",
+    "deploy-tenderly": "hardhat run scripts/deploy.js --network tenderly"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",

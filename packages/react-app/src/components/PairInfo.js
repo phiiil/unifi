@@ -1,13 +1,9 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { Center, Divider, Button, Box, HStack, VStack } from "@chakra-ui/react"
-import { Stat, StatLabel, StatNumber, StatHelpText } from "@chakra-ui/react"
-import { Text, StatGroup, StatArrow } from "@chakra-ui/react"
 import TokenBox from "./TokenBox.js"
-import { FormControl, NumberInput, NumberInputField } from "@chakra-ui/react"
 // web3
 import { Decimal } from "decimal.js";
-import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Pool } from "@uniswap/v3-sdk";
 import { Token } from "@uniswap/sdk-core";
@@ -21,22 +17,21 @@ import { TickMath, tickToPrice } from '@uniswap/v3-sdk'
  * 
  * @returns the VaultInfo component
  */
-function VaultInfo() {
+function PairInfo() {
     const [provider] = useWeb3Modal();
     const [totalLiquidity, setTotalLiquidity] = useState();
     const [token0, setToken0] = useState(null);
     const [token1, setToken1] = useState(null);
-    const [balance0, setBalance0] = useState(null);
-    const [balance1, setBalance1] = useState(null);
 
     useEffect(() => {
         if (provider) {
             getVaultInfo();
+            getPoolInfo(process.env.REACT_APP_WETH_USDC_POOL);
         }
     }, [provider]);
 
     /**
-     * Call function on the Unifi contract to display information
+     * Call fucntion on the Unifi contract to display information
      */
     const getVaultInfo = async () => {
         console.log('Getting Vault Info...')
@@ -46,10 +41,34 @@ function VaultInfo() {
         setTotalLiquidity(tl.toString());
         setToken0(await unifi.getToken0());
         setToken1(await unifi.getToken1());
-
     };
 
-    const mintInitialPosition = async (e) => {
+    /**
+     * Call view functions on the Uniswap V3 pool to get info
+     */
+    const getPoolInfo = async (poolAddress) => {
+        console.log(`Getting Uniswap Pool Info for ${poolAddress}`)
+        const uniswapPool = new Contract(poolAddress, IUniswapV3PoolABI, provider);
+        let [tickCumulatives, secondsPerLiquidityCumulativeX128s] = await uniswapPool.observe([0, 20]);
+        console.log(tickCumulatives);
+        let delta = tickCumulatives[0].sub(tickCumulatives[1]);
+        let secondsElapsed = secondsPerLiquidityCumulativeX128s[0].sub(secondsPerLiquidityCumulativeX128s[1]);
+        console.log(`delta: ${delta.toString()}`);
+        console.log(`secondsElapsed: ${secondsElapsed.toString()}`);
+        let currentTick = Decimal(delta.toString()).div(Decimal(secondsElapsed.toString()));
+        console.log(`currentTick: ${currentTick.toString()}`);
+        let price = Decimal('1.0001').pow(currentTick);
+        console.log(`price: ${price.toString()}`);
+        // An example of finding the price of WETH in a WETH / USDC pool, where WETH is token0 and USDC is token1:
+        // You have an oracle reading that shows a return of tickCumulative as [70,000, 1,000,000], with an elapsed time between the observations of 13 seconds.
+        // The current tick is 71,538.46 as expressed by the delta between the most recent and second most recent value of tickCumulative, divided by the elapsed seconds time between the readings.
+        // With a tick reading of 71,538.46,, we can find the value of token0 relative to token1 by using the current tick as i' in 𝑝(𝑖) = 1.0001^𝑖`
+        // 1.0001^71,538.46 = 1278.56
+        // tick 71,538.46 gives us a price of WETH as 1278.56 in terms of USDC
+
+    }
+
+    const mint = async (e) => {
         console.log("Mint New Position");
         if (provider) {
             try {
@@ -90,27 +109,8 @@ function VaultInfo() {
 
     return (
         <VStack color="white">
-            <Box bg="gray.800" maxW="100%" p={3} borderWidth="1px" borderRadius="lg">
-                <Text fontSize="md" color="gray">
-                    As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
-                </Text>
-
-                <StatGroup>
-                    <Stat>
-                        <StatLabel>Total Liquidity</StatLabel>
-                        <StatNumber>{totalLiquidity}</StatNumber>
-                        <StatHelpText>
-                            Total liquidity held in the Vault.
-                        </StatHelpText>
-                    </Stat>
-
-                    <Stat>
-                        <StatLabel>Other Value</StatLabel>
-                        <StatNumber>0</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-                </StatGroup>
+            <Box>
+                Total Liquidity: {totalLiquidity}
             </Box>
 
             <Divider />
@@ -119,22 +119,10 @@ function VaultInfo() {
                 <TokenBox address={token1} />
             </HStack>
 
-
-            <Box>
-                <Button colorScheme="yellow" size="lg" onClick={mintInitialPosition}>Mint Initial Position</Button>
-            </Box>
-            <Box>
-
-                <FormControl>
-                    <HStack spacing="12 ">
-                        <NumberInput defaultValue={0}>
-                            <NumberInputField />
-                        </NumberInput>
-                        <Button colorScheme="pink" size="lg">Add ETH Liquidity</Button>
-                    </HStack>
-                </FormControl>
-
-            </Box>
+            <Center>
+                <Button colorScheme="yellow" size="lg">Deposit</Button>
+                <Button colorScheme="pink" size="lg" onClick={mint}>Mint</Button>
+            </Center>
         </VStack>
     )
 }
