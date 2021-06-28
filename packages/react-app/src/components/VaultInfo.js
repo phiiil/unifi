@@ -28,6 +28,7 @@ function VaultInfo() {
     const [token1, setToken1] = useState(null);
     const [balance0, setBalance0] = useState(null);
     const [balance1, setBalance1] = useState(null);
+    const [unifiAddress] = useState(process.env.REACT_APP_UNIFI_ADDR);
 
     useEffect(() => {
         if (provider) {
@@ -59,19 +60,18 @@ function VaultInfo() {
                 const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
 
                 const fee = await uniswapPool.fee()
-                const amount0Desired = await unifi.getTokenBalance();
-                const amount1Desired = await unifi.getWethBalance();
+                const amount0Desired = await unifi.getVaultBalance(token0);
+                const amount1Desired = await unifi.getVaultBalance(token1);
                 const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
 
                 let mintParams = {
                     token0: token0,
                     token1: token1,
-                    fee,
+                    fee: fee.toString(),
                     tickLower: '196260',
                     tickUpper: '199920',
-                    amount0Desired,
-                    // amount1Desired: '125608504651217967263',
-                    amount1Desired,
+                    amount0Desired: amount0Desired.toString(),
+                    amount1Desired: amount1Desired.toString(),
                     amount0Min: '0',
                     amount1Min: '0',
                     recipient: unifiAddress,
@@ -79,7 +79,7 @@ function VaultInfo() {
                 }
                 console.log(mintParams);
                 // multicall and send ETH
-                let mintTx = await unifi.addLiquidityEth(mintParams);
+                let mintTx = await unifi.mintPosition(mintParams);
                 console.log(mintTx);
             }
             catch (e) {
@@ -90,6 +90,14 @@ function VaultInfo() {
 
     return (
         <VStack color="white">
+
+            <Text color="black" >Unifi Vault: {unifiAddress}</Text>
+
+            <HStack spacing="12 ">
+                <TokenBox address={token0} />
+                <TokenBox address={token1} />
+            </HStack>
+
             <Box bg="gray.800" maxW="100%" p={3} borderWidth="1px" borderRadius="lg">
                 <Text fontSize="md" color="gray">
                     As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
@@ -112,14 +120,6 @@ function VaultInfo() {
                     </Stat>
                 </StatGroup>
             </Box>
-
-            <Divider />
-            <HStack spacing="12 ">
-                <TokenBox address={token0} />
-                <TokenBox address={token1} />
-            </HStack>
-
-
             <Box>
                 <Button colorScheme="yellow" size="lg" onClick={mintInitialPosition}>Mint Initial Position</Button>
             </Box>

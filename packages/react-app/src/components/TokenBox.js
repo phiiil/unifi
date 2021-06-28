@@ -62,11 +62,15 @@ function TokenBox({ address }) {
         console.log('Update On Cahin Data');
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
+        const unifiContract = new Contract(unifiAddress, Unifi.abi, provider);
         const tokenContract = new Contract(address, ERC20.abi, provider);
         // Check Allowance
         const a = await tokenContract.allowance(signerAddress, unifiAddress);
         console.log(a);
         setAllowance(formatTokenAmount(BigNumber.from(a)));
+        // balance in the vault (no in  liquidity positions)
+        const vb = await unifiContract.getVaultBalance(address);
+        setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
     }
 
     const approveAllowance = async (e) => {
@@ -124,7 +128,7 @@ function TokenBox({ address }) {
                     </StatHelpText>
 
                 </Stat>
-                <FormControl>
+                {/* <FormControl>
                     <HStack>
                         <NumberInput defaultValue={0}>
                             <NumberInputField />
@@ -133,7 +137,7 @@ function TokenBox({ address }) {
                             <Button colorScheme="pink">Deposit {tokenInfo?.symbol}</Button>
                         </Tooltip>
                     </HStack>
-                </FormControl>
+                </FormControl> */}
             </Box>
 
         )
