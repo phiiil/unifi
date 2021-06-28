@@ -91,27 +91,27 @@ function VaultInfo() {
     function VaultStats() {
         return (
             <Box bg="gray.800" maxW="xl" p={3} borderWidth="1px" borderRadius="lg">
-            <Text fontSize="md" color="gray">
-                As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
-            </Text>
+                <Text fontSize="md" color="gray">
+                    As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
+                </Text>
 
-            <StatGroup>
-                <Stat>
-                    <StatLabel>Total Liquidity</StatLabel>
-                    <StatNumber>{totalLiquidity}</StatNumber>
-                    <StatHelpText>
-                        Total liquidity held in the Vault.
-                    </StatHelpText>
-                </Stat>
+                <StatGroup>
+                    <Stat>
+                        <StatLabel>Total Liquidity</StatLabel>
+                        <StatNumber>{totalLiquidity}</StatNumber>
+                        <StatHelpText>
+                            Total liquidity held in the Vault.
+                        </StatHelpText>
+                    </Stat>
 
-                <Stat>
-                    <StatLabel>Other Value</StatLabel>
-                    <StatNumber>0</StatNumber>
-                    <StatHelpText>
-                    </StatHelpText>
-                </Stat>
-            </StatGroup>
-        </Box>
+                    <Stat>
+                        <StatLabel>Other Value</StatLabel>
+                        <StatNumber>0</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
+                </StatGroup>
+            </Box>
         )
     }
 
