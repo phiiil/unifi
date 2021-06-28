@@ -88,45 +88,37 @@ function VaultInfo() {
         }
     }
 
-    function VaultStats() {
-        return (
-            <Box bg="gray.800" maxW="xl" p={3} borderWidth="1px" borderRadius="lg">
-            <Text fontSize="md" color="gray">
-                As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
-            </Text>
-
-            <StatGroup>
-                <Stat>
-                    <StatLabel>Total Liquidity</StatLabel>
-                    <StatNumber>{totalLiquidity}</StatNumber>
-                    <StatHelpText>
-                        Total liquidity held in the Vault.
-                    </StatHelpText>
-                </Stat>
-
-                <Stat>
-                    <StatLabel>Other Value</StatLabel>
-                    <StatNumber>0</StatNumber>
-                    <StatHelpText>
-                    </StatHelpText>
-                </Stat>
-            </StatGroup>
-        </Box>
-        )
-    }
-
     return (
         <VStack color="white">
-            {VaultStats()}
-
             <Text color="black" >Unifi Vault: {unifiAddress}</Text>
 
-            <VStack spacing="12 ">
+            <HStack spacing="12 ">
                 <TokenBox address={token0} />
                 <TokenBox address={token1} />
-            </VStack>
+            </HStack>
 
+            <Box bg="gray.800" maxW="100%" p={3} borderWidth="1px" borderRadius="lg">
+                <Text fontSize="md" color="gray">
+                    As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
+                </Text>
 
+                <StatGroup>
+                    <Stat>
+                        <StatLabel>Total Liquidity</StatLabel>
+                        <StatNumber>{totalLiquidity}</StatNumber>
+                        <StatHelpText>
+                            Total liquidity held in the Vault.
+                        </StatHelpText>
+                    </Stat>
+
+                    <Stat>
+                        <StatLabel>Other Value</StatLabel>
+                        <StatNumber>0</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
+                </StatGroup>
+            </Box>
             <Box>
                 <Button colorScheme="yellow" size="lg" onClick={mintInitialPosition}>Mint Initial Position</Button>
             </Box>
