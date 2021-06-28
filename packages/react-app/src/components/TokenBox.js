@@ -1,8 +1,8 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
-import { Link, Image, Box, HStack, Spacer } from "@chakra-ui/react"
-import { FormControl, NumberInput, NumberInputField, Tooltip, Center} from "@chakra-ui/react"
+import { Link, Image, Box, HStack, VStack, Spacer } from "@chakra-ui/react"
+import { FormControl, NumberInput, NumberInputField, Tooltip, Center } from "@chakra-ui/react"
 
 import { PlusSquareIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import useWeb3Modal from "../hooks/useWeb3Modal";
@@ -19,20 +19,18 @@ import {
     StatHelpText,
     StatArrow,
     StatGroup,
-  } from "@chakra-ui/react"
+} from "@chakra-ui/react"
 
 
-  // Button Chakra
-  import { Button, ButtonGroup } from "@chakra-ui/react"
+// Button Chakra
+import { Button, ButtonGroup } from "@chakra-ui/react"
 
-  // Using Darkmode for allowance buttons
-  import {
+// Using Darkmode for allowance buttons
+import {
     ChakraProvider,
     cookieStorageManager,
     localStorageManager,
-  } from "@chakra-ui/react"
-
-
+} from "@chakra-ui/react"
 
 
 /**
@@ -117,7 +115,7 @@ function TokenBox({ address }) {
         await tx.wait();
         updateOnchainData();
     }
-    
+
 
 
     const formatTokenAmount = (amount) => {
@@ -137,30 +135,36 @@ function TokenBox({ address }) {
         return (
             <Box w='xl' bg="gray.800" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
                 <HStack>
-                <Stat >
-                    {/* <StatLabel><Center>{tokenInfo?.name}</Center></StatLabel> */}
-                    <StatNumber>
-                        <HStack>
-                        <Image boxSize="1em" src={logoUrl} />
-                            <Link href={tokenInfo?.explorer} isExternal>{tokenInfo?.symbol}</Link>
-                        </HStack>
-                        <Box>Vault Balance: </Box>
-                        <Box>{vaultBalance}</Box>
+                    <Stat >
+                        {/* <StatLabel><Center>{tokenInfo?.name}</Center></StatLabel> */}
+                        <StatNumber>
+                            <HStack>
+                                <Image boxSize="1em" src={logoUrl} />
+                                <Link href={tokenInfo?.explorer} isExternal>{tokenInfo?.symbol}</Link>
+                            </HStack>
+                            <Box>Vault Balance: </Box>
+                            <Box>{vaultBalance}</Box>
                         </StatNumber>
                         <StatHelpText>
-                        <HStack color="gray.500">
-                            <Box>Allowance: {allowance}</Box>
+                            <Box color="gray.500">
+
+                                <Box>Allowance: </Box>
+                                <Box>{allowance > 0 ? allowance : "Waiting for approval.."}</Box>
+                            </Box>
+                            {/* <VStack color="gray.500">
                             {/* <Tooltip hasArrow label="Approve Allowance" bg="pink.600">
                                 <PlusSquareIcon w="5" h="5" color="pink" onClick={approveAllowance} />
                             </Tooltip> */}
-                        </HStack>
-                    </StatHelpText>
-                </Stat>
-                {/* Comment: Button: Approve and Approved */}
-                {/* <Button isDisabled={allowance>0} colorScheme="telegram"  color="white" onClick={approveAllowance}>{allowance>0?"Revoke":"Approve"}</Button> */}
-                
-                 {/* Comment: Button: Approve and Revoke */}
-                <Button colorScheme="telegram" color="white" onClick={allowance>0?revokeAllowance:approveAllowance}>{allowance>0?"Revoke":"Approve"}</Button>
+                            {/* </VStack> */}
+                        </StatHelpText>
+                    </Stat>
+
+                    <Spacer />
+                    {/* Comment: Button: Approve and Approved */}
+                    {/* <Button isDisabled={allowance>0} colorScheme="telegram"  color="white" onClick={approveAllowance}>{allowance>0?"Revoke":"Approve"}</Button> */}
+
+                    {/* Comment: Button: Approve and Revoke */}
+                    <Button colorScheme="telegram" color="white" onClick={allowance > 0 ? revokeAllowance : approveAllowance}>{allowance > 0 ? "Revoke" : "Approve"}</Button>
                 </HStack>
             </Box>
 
