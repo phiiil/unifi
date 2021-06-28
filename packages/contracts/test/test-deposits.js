@@ -1,5 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+
 const { TWO_USDC, FOUR_ETH } = require("./testutils.js");
 const { FACTORY_ADDR, USDC_ADDR, WETH_ADDR, NFTPM_ADDR, POOL_ADDR, IMP_ADDR } = require("./testutils.js");
 const usdcAbi = require('../abi/MockERC20.json').abi;
@@ -14,8 +15,8 @@ describe("Deposits should", function () {
     before(async () => {
         console.log("before...")
         // deploy contract
-        const LiquidityPro = await ethers.getContractFactory("UnifiVault");
-        lp = await LiquidityPro.deploy(FACTORY_ADDR, NFTPM_ADDR, POOL_ADDR);
+        const UnifiVault = await ethers.getContractFactory("UnifiVault");
+        lp = await UnifiVault.deploy(FACTORY_ADDR, NFTPM_ADDR, POOL_ADDR);
         await lp.deployed();
 
         await network.provider.request({
@@ -34,11 +35,11 @@ describe("Deposits should", function () {
 
     it("Wrap ETH into WETH token", async function () {
         let tx = await signer.sendTransaction({ to: lp.address, value: FOUR_ETH });
-        await tx.wait();
-
+        let receipt = await tx.wait();
         const wethBalance = await lp.getBalance(WETH_ADDR);
         console.log(wethBalance.toString());
         expect(wethBalance).to.equal(FOUR_ETH, "balance should be in UnifiVault");
+        // no events from recive function it seems...
     });
 
     it("Accept USDC tokens", async function () {
@@ -48,9 +49,14 @@ describe("Deposits should", function () {
         (await usdc.approve(lp.address, testAmount)).wait();
         // deposit
         let tx = await lp.deposit(USDC_ADDR, testAmount);
-        await tx.wait();
+        let receipt = await tx.wait();
         const b = await lp.getBalance(USDC_ADDR);
         console.log(b.toString());
         expect(b).to.equal(testAmount, "balance should be in UnifiVault");
+        // event
+        console.log(receipt.events);
+        const event = receipt.events.find(x => x.event === "TokenDeposit");
+        expect(event.args.token).to.equal(USDC_ADDR);
+        expect(event.args.amount).to.equal(TWO_USDC);
     });
 });
