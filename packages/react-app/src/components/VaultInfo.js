@@ -31,6 +31,11 @@ function VaultInfo() {
     const [balance1, setBalance1] = useState(null);
     const [positionAmount0, setPositionAmount0] = useState(null);
     const [positionAmount1, setPositionAmount1] = useState(null);
+    const [vaultTickLower, setVaultTickLower] = useState(null);
+    const [vaultTickUpper, setVaultTickUpper] = useState(null);
+    const [currentTick, setCurrentTick] = useState(null);
+
+    const [wethPrice, setWethPrice] = useState(null);
     const [unifiAddress] = useState(process.env.REACT_APP_UNIFI_ADDR);
     const [tokenId, setTokenId] = useState('');
 
@@ -56,6 +61,10 @@ function VaultInfo() {
         try {
             setTokenId(String(await unifi.vaultTokenId()));
             // console.log(tokenId)
+            // await unifi.updateWethPrice();
+            // const p = await unifi.ethPrice();
+            // console.log(ethers.utils.formatUnits(p, '6'));
+            // setWethPrice(ethers.utils.formatUnits(p, '6'));
             let { liquidity } = await nft.positions(tokenId);
             console.log("vault liquidity", liquidity)
 
@@ -72,7 +81,9 @@ function VaultInfo() {
             const tokenA = new Token(1, res[0], 6, 'USDC', 'USDC');
             const tokenB = new Token(1, res[1], 18, 'WETH', 'WETH');
             const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, 0, tick);
-
+            console.log("token0 price", Number(pool.token1Price.toSignificant(6)));
+            setWethPrice(pool.token1Price.toSignificant(6));
+            setCurrentTick(tick);
             try {
                 const { liquidity, tickLower, tickUpper } = await nft.positions(tokenId);
                 const position = new Position({
@@ -81,8 +92,8 @@ function VaultInfo() {
                     tickLower,
                     tickUpper
                 });
-                // console.log("amount0", ethers.utils.formatUnits(position.amount0.quotient.toString(), '6'));
-                // console.log("amount1", ethers.utils.formatEther(position.amount1.quotient.toString()));
+                setVaultTickLower(tickLower);
+                setVaultTickUpper(tickUpper);
                 setPositionAmount0(ethers.utils.formatUnits(position.amount0.quotient.toString(), '6'));
                 setPositionAmount1(ethers.utils.formatEther(position.amount1.quotient.toString()));
 
@@ -233,6 +244,12 @@ function VaultInfo() {
                             Total liquidity held in the Vault.
                         </StatHelpText>
                     </Stat>
+                    <Stat>
+                        <StatLabel>ETH price</StatLabel>
+                        <StatNumber>{wethPrice}</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
                 </StatGroup>
 
                 <StatGroup>
@@ -246,6 +263,29 @@ function VaultInfo() {
                     <Stat>
                         <StatLabel>WETH</StatLabel>
                         <StatNumber>{positionAmount1}</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
+                </StatGroup>
+
+                <StatGroup>
+                    <Stat>
+                        <StatLabel>Current Tick</StatLabel>
+                        <StatNumber>{currentTick}</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
+
+                    <Stat>
+                        <StatLabel>TickLower</StatLabel>
+                        <StatNumber>{vaultTickLower}</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
+
+                    <Stat>
+                        <StatLabel>TickUpper</StatLabel>
+                        <StatNumber>{vaultTickUpper}</StatNumber>
                         <StatHelpText>
                         </StatHelpText>
                     </Stat>
