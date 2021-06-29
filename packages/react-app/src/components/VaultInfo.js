@@ -64,6 +64,9 @@ function VaultInfo() {
             // console.log(tokenId)
             // await unifi.updateWethPrice();
 
+            // const p = await unifi.ethPrice();
+            // console.log(ethers.utils.formatUnits(p, '6'));
+            // setWethPrice(ethers.utils.formatUnits(p, '6'));
             let { liquidity } = await nft.positions(tokenId);
             console.log("vault liquidity", liquidity)
 
