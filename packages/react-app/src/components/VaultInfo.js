@@ -144,57 +144,6 @@ function VaultInfo() {
             </Box>
         </VStack>
     )
-
-
-    // return (
-    //     <VStack color="white">
-
-    //         <Text color="black" >Unifi Vault: {unifiAddress}</Text>
-
-    //         <HStack spacing="12 ">
-    //             <TokenBox address={token0} />
-    //             <TokenBox address={token1} />
-    //         </HStack>
-
-    //         <Box bg="gray.800" maxW="100%" p={3} borderWidth="1px" borderRadius="lg">
-    //             <Text fontSize="md" color="gray">
-    //                 As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
-    //             </Text>
-
-    //             <StatGroup>
-    //                 <Stat>
-    //                     <StatLabel>Total Liquidity</StatLabel>
-    //                     <StatNumber>{totalLiquidity}</StatNumber>
-    //                     <StatHelpText>
-    //                         Total liquidity held in the Vault.
-    //                     </StatHelpText>
-    //                 </Stat>
-
-    //                 <Stat>
-    //                     <StatLabel>Other Value</StatLabel>
-    //                     <StatNumber>0</StatNumber>
-    //                     <StatHelpText>
-    //                     </StatHelpText>
-    //                 </Stat>
-    //             </StatGroup>
-    //         </Box>
-    //         <Box>
-    //             <Button colorScheme="yellow" size="lg" onClick={mintInitialPosition}>Mint Initial Position</Button>
-    //         </Box>
-    //         <Box>
-
-    //             <FormControl>
-    //                 <HStack spacing="12 ">
-    //                     <NumberInput defaultValue={0}>
-    //                         <NumberInputField />
-    //                     </NumberInput>
-    //                     <Button colorScheme="pink" size="lg">Add ETH Liquidity</Button>
-    //                 </HStack>
-    //             </FormControl>
-
-    //         </Box>
-    //     </VStack>
-    // )
 }
 
 

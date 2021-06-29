@@ -185,7 +185,7 @@ function TokenBox({ address }) {
 
                     {/* Comment: Button: Approve and Revoke */}
                     <Button
-                        colorScheme="telegram"
+                        colorScheme="teal"
                         color="white"
                         onClick={allowance > 0 ? revokeAllowance : approveAllowance}
                     >
