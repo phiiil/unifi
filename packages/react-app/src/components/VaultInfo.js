@@ -10,12 +10,12 @@ import { Decimal } from "decimal.js";
 import { ethers, BigNumber } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Pool, Position } from "@uniswap/v3-sdk";
-import { Token } from "@uniswap/sdk-core";
+import { Price, Token } from "@uniswap/sdk-core";
 import useWeb3Modal from "../hooks/useWeb3Modal";
 import Unifi from '../abi/UnifiVault.json'
 import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
 import INonfungiblePositionManager from "../abi/INonfungiblePositionManager.json";
-import { TickMath, tickToPrice } from '@uniswap/v3-sdk';
+import { TickMath, tickToPrice, priceToClosestTick } from '@uniswap/v3-sdk';
 
 /**
  * Component that displays information about our Vault for a specific pool
@@ -76,8 +76,8 @@ function VaultInfo() {
         const { sqrtPriceX96, tick } = await uniswapPool.slot0();
         console.log("sqrtPriceX96", sqrtPriceX96.toString());
         // (sqrtPriceX96/2^96)^2
-        let usdcPrice = sqrtPriceX96.div(BigNumber.from(2).pow(96)).pow(2).toNumber();
-        console.log("price", usdcPrice)
+        // let usdcPrice = sqrtPriceX96.div(BigNumber.from(2).pow(96)).pow(2).toNumber();
+        // console.log("price", usdcPrice)
         // let p = Math.floor((1/usdcPrice) * 1e18);
         // console.log("price", p);
         const fee = await uniswapPool.fee();
@@ -89,7 +89,7 @@ function VaultInfo() {
             const tokenA = new Token(1, res[0], 6, 'USDC', 'USDC');
             const tokenB = new Token(1, res[1], 18, 'WETH', 'WETH');
             const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, 0, tick);
-            console.log("token0 price", Number(pool.token1Price.toSignificant(10)));
+            // console.log("token0 price", Number(pool.token1Price.toSignificant(10)));
             setWethPrice(pool.token1Price.toSignificant(10));
             setCurrentTick(tick);
             try {
@@ -215,22 +215,31 @@ function VaultInfo() {
         e.preventDefault();
         // console.log(e.target.value);
         try {
-            setVaultTickLower(e.target.value);
-            console.log(vaultTickLower)
-            // let price = Math.floor((1/Number(e.target.value)) * 1e18 / 1e6);
-            // console.log(price)
-            // let sqrtPrice = BigNumber.from(price).pow(0.5).mul(twoPower96);
-            // let sqrtPrice = Math.sqrt(price);
-            // let sqrtPrice = ();
-            // console.log("sqrt price", (BigNumber.from(sqrtPrice).mul(twoPower96)).toString());
+            let priceInput = e.target.value;
+            const tokenA = new Token(1, token0, 6, 'USDC', 'USDC');
+            const tokenB = new Token(1, token1, 18, 'WETH', 'WETH');
+            const priceLower = new Price(tokenA, tokenB, Number(priceInput)*1e6, 1e18);
+            console.log("price lower", Number(priceLower.toSignificant(10)));
+            const tickUpperInput = priceToClosestTick(priceLower);
+            console.log("fix to 60", (Math.floor(tickUpperInput/60)) * 60);
+            // console.log(tickUpperInput);
+            setVaultTickUpper((Math.floor(tickUpperInput/60)) * 60);
+            console.log(vaultTickUpper);
         } catch(e) {}
     }
 
     const handleUpperInput = async (e) => {
         e.preventDefault();
         try {
-            setVaultTickUpper(e.target.value);
-            console.log(vaultTickUpper);
+            let priceInput = e.target.value;
+            const tokenA = new Token(1, token0, 6, 'USDC', 'USDC');
+            const tokenB = new Token(1, token1, 18, 'WETH', 'WETH');
+            const priceUpper = new Price(tokenA, tokenB, Number(priceInput)*1e6, 1e18);
+            console.log("price upper", Number(priceUpper.toSignificant(10)));
+            const tickLowerInput = priceToClosestTick(priceUpper);
+            // console.log(tickLowerInput);
+            setVaultTickLower((Math.floor(tickLowerInput/60)) * 60);
+            console.log(vaultTickLower);
         } catch(e) {}
     }
 
@@ -325,7 +334,7 @@ function VaultInfo() {
                 </StatGroup>
             </Box>
             <Box color='gray.800'>
-                <Text mb="8px">Price Lower: </Text>
+                <Text mb="8px">Price Lower (put ETH price here) </Text>
                 <Input
                     // value={value}
                     onChange={handleLowerInput}
