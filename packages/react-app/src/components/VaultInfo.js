@@ -351,75 +351,14 @@ function VaultInfo() {
 
     return (
         <VStack color="white">
-            {VaultStats()}
 
             <Text color="black" >Unifi Vault: {unifiAddress}</Text>
 
-            <HStack spacing="12 ">
+            <VStack spacing="12 ">
                 <TokenBox address={token0} />
                 <TokenBox address={token1} />
-            </HStack>
-
-            <Box bg="gray.800" maxW="100%" p={3} borderWidth="1px" borderRadius="lg">
-                <Text fontSize="md" color="gray">
-                    As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
-                </Text>
-
-                <StatGroup>
-                    <Stat>
-                        <StatLabel>Total Liquidity</StatLabel>
-                        <StatNumber>{totalLiquidity}</StatNumber>
-                        <StatHelpText>
-                            Total liquidity held in the Vault.
-                        </StatHelpText>
-                    </Stat>
-                    <Stat>
-                        <StatLabel>ETH price</StatLabel>
-                        <StatNumber>{wethPrice}</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-                </StatGroup>
-
-                <StatGroup>
-                    <Stat>
-                        <StatLabel>USDC</StatLabel>
-                        <StatNumber>{positionAmount0}</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-
-                    <Stat>
-                        <StatLabel>WETH</StatLabel>
-                        <StatNumber>{positionAmount1}</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-                </StatGroup>
-
-                <StatGroup>
-                    <Stat>
-                        <StatLabel>Current Tick</StatLabel>
-                        <StatNumber>{currentTick}</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-
-                    <Stat>
-                        <StatLabel>TickLower</StatLabel>
-                        <StatNumber>{vaultTickLower}</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-
-                    <Stat>
-                        <StatLabel>TickUpper</StatLabel>
-                        <StatNumber>{vaultTickUpper}</StatNumber>
-                        <StatHelpText>
-                        </StatHelpText>
-                    </Stat>
-                </StatGroup>
-            </Box>
+            </VStack>
+{/* 
             <Box color='gray.800'>
                 <Text mb="8px">Price Lower (put ETH price here) </Text>
                 <Input
@@ -436,7 +375,10 @@ function VaultInfo() {
                     size="sm"
                 />
                 <Button colorScheme="yellow" size="lg" margin="1" onClick={mintInitialPosition}>Mint New Position</Button>
-            </Box>
+            </Box> */}
+
+            {VaultStats()}
+
             <Box>
 
                 <Button colorScheme="green" size="lg" margin="1" onClick={addLiquidity}>Add Liquidity</Button>
