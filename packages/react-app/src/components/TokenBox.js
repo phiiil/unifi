@@ -1,16 +1,40 @@
-
 import React from "react";
 import { useEffect, useState } from "react";
-import { Stat, StatLabel, StatNumber, StatHelpText } from "@chakra-ui/react"
-import { Link, Image, Box, HStack } from "@chakra-ui/react"
-import { FormControl, NumberInput, NumberInputField, Button, Tooltip } from "@chakra-ui/react"
+import { Link, Image, Box, HStack, VStack, Spacer } from "@chakra-ui/react";
+import {
+    FormControl,
+    NumberInput,
+    NumberInputField,
+    Tooltip,
+    Center,
+} from "@chakra-ui/react";
 
-import { PlusSquareIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { PlusSquareIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import useWeb3Modal from "../hooks/useWeb3Modal";
-import { ethers, BigNumber } from 'ethers';
-import Unifi from '../abi/UnifiVault.json'
-import ERC20 from '../abi/MockERC20.json'
+import { ethers, BigNumber } from "ethers";
+import Unifi from "../abi/UnifiVault.json";
+import ERC20 from "../abi/MockERC20.json";
 import { Contract } from "@ethersproject/contracts";
+
+// Stats Chakra
+import {
+    Stat,
+    StatLabel,
+    StatNumber,
+    StatHelpText,
+    StatArrow,
+    StatGroup,
+} from "@chakra-ui/react";
+
+// Button Chakra
+import { Button, ButtonGroup } from "@chakra-ui/react";
+
+// Using Darkmode for allowance buttons
+import {
+    ChakraProvider,
+    cookieStorageManager,
+    localStorageManager,
+} from "@chakra-ui/react";
 
 /**
  * Component that displays information about our Vault for a specific pool
@@ -18,7 +42,6 @@ import { Contract } from "@ethersproject/contracts";
  * @returns the VaultInfo component
  */
 function TokenBox({ address }) {
-
     const baseUrl = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets`;
     const logoUrl = `${baseUrl}/${address}/logo.png`;
     const infoUrl = `${baseUrl}/${address}/info.json`;
@@ -31,7 +54,7 @@ function TokenBox({ address }) {
         if (address && !isLoaded && !error) {
             // console.log(`Getting token info: ${infoUrl}`);
             fetch(infoUrl)
-                .then(res => res.json())
+                .then((res) => res.json())
                 .then(
                     (result) => {
                         // console.log(result);
@@ -44,11 +67,9 @@ function TokenBox({ address }) {
                         setIsLoaded(true);
                         setError(error);
                     }
-                )
+                );
         }
     });
-
-
 
     const [provider] = useWeb3Modal();
     const [allowance, setAllowance] = useState();
@@ -60,7 +81,7 @@ function TokenBox({ address }) {
     }, [address, provider, tokenInfo]);
 
     const updateOnchainData = async () => {
-        console.log('Update On Cahin Data');
+        console.log("Update On Cahin Data");
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
         const unifiContract = new Contract(unifiAddress, Unifi.abi, provider);
@@ -70,21 +91,38 @@ function TokenBox({ address }) {
         // console.log(a);
         setAllowance(formatTokenAmount(BigNumber.from(a)));
         // balance in the vault (no in  liquidity positions)
-        try{
+        try {
             const vb = await unifiContract.getVaultBalance(address);
             setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
 
-        } catch (erro) {}
-
-    }
+        } catch (erro) {
+            console.log(erro);
+        }
+    };
 
     const approveAllowance = async (e) => {
-        console.log("Approve...");
+        console.log("Approving Allowance");
+        allowAmount("99999999999999999999");
+    }
+
+    const revokeAllowance = async (e) => {
+        console.log("Revoking Allowance");
+        allowAmount("0");
+    }
+    async function allowAmount(_amount) {
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
-        const tokenContract = new Contract(address, ERC20.abi, provider.getSigner());
-        // Approve Allowance of
-        const tx = await tokenContract.approve(unifiAddress, BigNumber.from("99999999999999999999"));
+        const tokenContract = new Contract(
+            address,
+            ERC20.abi,
+            provider.getSigner()
+        );
+        // Approve Allowance of _amount
+        const tx = await tokenContract.approve(
+            unifiAddress,
+            BigNumber.from(_amount)
+        );
+
         await tx.wait();
         updateOnchainData();
     }
@@ -92,11 +130,10 @@ function TokenBox({ address }) {
     const formatTokenAmount = (amount) => {
         if (tokenInfo) {
             return ethers.utils.formatUnits(amount, tokenInfo.decimals);
-        }
-        else {
+        } else {
             return amount.toString();
         }
-    }
+    };
 
     if (error) {
         return <div>Error : {error.message}</div>;
@@ -104,50 +141,53 @@ function TokenBox({ address }) {
         return <div>Loading...</div>;
     } else {
         return (
-            <Box bg="gray.800" w="350px" h="200px" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
-                <Stat >
-                    <Image boxSize="2em" src={logoUrl} />
-                    <StatLabel>{tokenInfo?.name}</StatLabel>
-                    <StatNumber>
-                        <HStack>
-                            <Box>{tokenInfo?.symbol}</Box>
-                            <Box>
-                                <Link color="gray.500" href={tokenInfo?.explorer} isExternal>
-                                    <ExternalLinkIcon boxSize="0.6em" />
+            <Box
+                w="xl"
+                bg="gray.800"
+                p={4}
+                borderWidth="1px"
+                borderRadius="lg"
+                overflow="hidden"
+            >
+                <HStack>
+                    <Stat>
+                        {/* <StatLabel><Center>{tokenInfo?.name}</Center></StatLabel> */}
+                        <StatNumber>
+                            <HStack>
+                                <Image boxSize="1em" src={logoUrl} />
+                                <Link href={tokenInfo?.explorer} isExternal>
+                                    {tokenInfo?.symbol}
                                 </Link>
+                            </HStack>
+                            <Box>Vault Balance: </Box>
+                            <Box>{vaultBalance}</Box>
+                        </StatNumber>
+                        <StatHelpText>
+                            <Box color="gray.500">
+                                <Box>Allowance: </Box>
+                                <Box>
+                                    {allowance > 0 ? allowance : "Waiting for approval..."}
+                                </Box>
                             </Box>
-                        </HStack>
-                    </StatNumber>
-                    <StatNumber>
-                        <HStack>
-                            <Box>Vault Balance: {vaultBalance}</Box>
-                        </HStack>
-                    </StatNumber>
-                    <StatHelpText>
-                        <HStack color="gray.500">
-                            <Box>Allowance: {allowance}</Box>
-                            <Tooltip hasArrow label="Approve Allowance" bg="pink.600">
-                                <PlusSquareIcon w="5" h="5" color="pink" onClick={approveAllowance} />
-                            </Tooltip>
-                        </HStack>
-                    </StatHelpText>
+                        </StatHelpText>
+                    </Stat>
 
-                </Stat>
-                {/* <FormControl>
-                    <HStack>
-                        <NumberInput defaultValue={0}>
-                            <NumberInputField />
-                        </NumberInput>
-                        <Tooltip hasArrow label="Deposit in Unifi Vault" bg="pink.600">
-                            <Button colorScheme="pink">Deposit {tokenInfo?.symbol}</Button>
-                        </Tooltip>
-                    </HStack>
-                </FormControl> */}
+                    <Spacer />
+                    {/* Comment: Button: Approve and Approved */}
+                    {/* <Button isDisabled={allowance>0} colorScheme="telegram"  color="white" onClick={approveAllowance}>{allowance>0?"Revoke":"Approve"}</Button> */}
+
+                    {/* Comment: Button: Approve and Revoke */}
+                    <Button
+                        colorScheme="teal"
+                        color="white"
+                        onClick={allowance > 0 ? revokeAllowance : approveAllowance}
+                    >
+                        {allowance > 0 ? "Revoke" : "Approve"}
+                    </Button>
+                </HStack>
             </Box>
-
-        )
+        );
     }
 }
-
 
 export default TokenBox;
