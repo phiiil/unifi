@@ -2,12 +2,12 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { Center, Divider, Button, Box, HStack, VStack } from "@chakra-ui/react"
 import { Stat, StatLabel, StatNumber, StatHelpText } from "@chakra-ui/react"
-import { Text, StatGroup, StatArrow } from "@chakra-ui/react"
+import { Text, StatGroup, StatArrow, Input } from "@chakra-ui/react"
 import TokenBox from "./TokenBox.js"
 import { FormControl, NumberInput, NumberInputField } from "@chakra-ui/react"
 // web3
 import { Decimal } from "decimal.js";
-import { ethers } from "ethers";
+import { ethers, BigNumber } from "ethers";
 import { Contract } from "@ethersproject/contracts";
 import { Pool, Position } from "@uniswap/v3-sdk";
 import { Token } from "@uniswap/sdk-core";
@@ -38,6 +38,7 @@ function VaultInfo() {
     const [wethPrice, setWethPrice] = useState(null);
     const [unifiAddress] = useState(process.env.REACT_APP_UNIFI_ADDR);
     const [tokenId, setTokenId] = useState('');
+    const twoPower96 = BigNumber.from(2).pow(96);
 
     useEffect(() => {
         if (provider) {
@@ -62,9 +63,7 @@ function VaultInfo() {
             setTokenId(String(await unifi.vaultTokenId()));
             // console.log(tokenId)
             // await unifi.updateWethPrice();
-            // const p = await unifi.ethPrice();
-            // console.log(ethers.utils.formatUnits(p, '6'));
-            // setWethPrice(ethers.utils.formatUnits(p, '6'));
+
             let { liquidity } = await nft.positions(tokenId);
             console.log("vault liquidity", liquidity)
 
@@ -72,6 +71,12 @@ function VaultInfo() {
         } catch (error) {}
 
         const { sqrtPriceX96, tick } = await uniswapPool.slot0();
+        console.log("sqrtPriceX96", sqrtPriceX96.toString());
+        // (sqrtPriceX96/2^96)^2
+        let usdcPrice = sqrtPriceX96.div(BigNumber.from(2).pow(96)).pow(2).toNumber();
+        console.log("price", usdcPrice)
+        // let p = Math.floor((1/usdcPrice) * 1e18);
+        // console.log("price", p);
         const fee = await uniswapPool.fee();
         const t1 = uniswapPool.token0();
         const t2 = uniswapPool.token1();
@@ -81,8 +86,8 @@ function VaultInfo() {
             const tokenA = new Token(1, res[0], 6, 'USDC', 'USDC');
             const tokenB = new Token(1, res[1], 18, 'WETH', 'WETH');
             const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, 0, tick);
-            console.log("token0 price", Number(pool.token1Price.toSignificant(6)));
-            setWethPrice(pool.token1Price.toSignificant(6));
+            console.log("token0 price", Number(pool.token1Price.toSignificant(10)));
+            setWethPrice(pool.token1Price.toSignificant(10));
             setCurrentTick(tick);
             try {
                 const { liquidity, tickLower, tickUpper } = await nft.positions(tokenId);
@@ -131,8 +136,10 @@ function VaultInfo() {
                     token0: token0,
                     token1: token1,
                     fee: fee.toString(),
-                    tickLower: '196260',
-                    tickUpper: '221480',
+                    // tickLower: '196260',
+                    tickLower: vaultTickLower.toString(),
+                    tickUpper: vaultTickUpper.toString(),
+                    // tickUpper: '221480',
                     amount0Desired: amount0Desired.toString(),
                     amount1Desired: amount1Desired.toString(),
                     amount0Min: '0',
@@ -199,6 +206,29 @@ function VaultInfo() {
                 console.log(e);
             }
         }
+    }
+
+    const handleLowerInput = async (e) => {
+        e.preventDefault();
+        // console.log(e.target.value);
+        try {
+            setVaultTickLower(e.target.value);
+            console.log(vaultTickLower)
+            // let price = Math.floor((1/Number(e.target.value)) * 1e18 / 1e6);
+            // console.log(price)
+            // let sqrtPrice = BigNumber.from(price).pow(0.5).mul(twoPower96);
+            // let sqrtPrice = Math.sqrt(price);
+            // let sqrtPrice = ();
+            // console.log("sqrt price", (BigNumber.from(sqrtPrice).mul(twoPower96)).toString());
+        } catch(e) {}
+    }
+
+    const handleUpperInput = async (e) => {
+        e.preventDefault();
+        try {
+            setVaultTickUpper(e.target.value);
+            console.log(vaultTickUpper);
+        } catch(e) {}
     }
 
     // not completed
@@ -291,14 +321,28 @@ function VaultInfo() {
                     </Stat>
                 </StatGroup>
             </Box>
-            <Box>
-                <Button colorScheme="yellow" size="lg" margin="1" onClick={mintInitialPosition}>Mint Initial Position</Button>
-                <Button colorScheme="green" size="lg" margin="1" onClick={addLiquidity}>Add Liquidity</Button>
-                <Button colorScheme="blue" size="lg" margin="1" onClick={withdrawLiquidity}>Withdraw Liquidity</Button>
+            <Box color='gray.800'>
+                <Text mb="8px">Price Lower: </Text>
+                <Input
+                    // value={value}
+                    onChange={handleLowerInput}
+                    placeholder="Lower limit of your price range"
+                    size="sm"
+                />
+                <Text mb="8px">Price Upper </Text>
+                <Input
+                    // value={value}
+                    onChange={handleUpperInput}
+                    placeholder="Upper limit of your price range"
+                    size="sm"
+                />
+                <Button colorScheme="yellow" size="lg" margin="1" onClick={mintInitialPosition}>Mint New Position</Button>
             </Box>
-                <Button colorScheme="blue" size="lg" margin="1" onClick={getVaultInfo}>update Vault Info</Button>
             <Box>
 
+                <Button colorScheme="green" size="lg" margin="1" onClick={addLiquidity}>Add Liquidity</Button>
+                <Button colorScheme="blue" size="lg" margin="1" onClick={withdrawLiquidity}>Withdraw Liquidity</Button>
+                <Button colorScheme="blue" size="lg" margin="1" onClick={getVaultInfo}>update Vault Info</Button>
             </Box>
             <Box>
 
