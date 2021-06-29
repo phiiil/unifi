@@ -94,8 +94,16 @@ function TokenBox({ address }) {
         setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
     };
 
-    const approveAllowance = async (e) => {
-        console.log("Approve...");
+    const approveAllowance = async(e) => {
+        console.log("Approving Allowance");
+        allowAmount("99999999999999999999");
+    }
+
+    const revokeAllowance = async(e) => {
+        console.log("Revoking Allowance");
+        allowAmount("0");
+    }
+    async function allowAmount(_amount){
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
         const tokenContract = new Contract(
@@ -103,31 +111,15 @@ function TokenBox({ address }) {
             ERC20.abi,
             provider.getSigner()
         );
-        // Approve Allowance of
+        // Approve Allowance of _amount 
         const tx = await tokenContract.approve(
             unifiAddress,
-            BigNumber.from("99999999999999999999")
+            BigNumber.from(_amount)
         );
 
         await tx.wait();
         updateOnchainData();
-    };
-
-    const revokeAllowance = async (e) => {
-        console.log("Revoke...");
-        const signerAddress = await provider.getSigner().getAddress();
-        const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
-        const tokenContract = new Contract(
-            address,
-            ERC20.abi,
-            provider.getSigner()
-        );
-        // Approve Allowance of
-        const tx = await tokenContract.approve(unifiAddress, BigNumber.from("0"));
-
-        await tx.wait();
-        updateOnchainData();
-    };
+    }
 
     const formatTokenAmount = (amount) => {
         if (tokenInfo) {
@@ -146,7 +138,7 @@ function TokenBox({ address }) {
             <Box
                 w="xl"
                 bg="gray.800"
-                p={3}
+                p={4}
                 borderWidth="1px"
                 borderRadius="lg"
                 overflow="hidden"
@@ -171,11 +163,6 @@ function TokenBox({ address }) {
                                     {allowance > 0 ? allowance : "Waiting for approval..."}
                                 </Box>
                             </Box>
-                            {/* <VStack color="gray.500">
-                            {/* <Tooltip hasArrow label="Approve Allowance" bg="pink.600">
-                                <PlusSquareIcon w="5" h="5" color="pink" onClick={approveAllowance} />
-                            </Tooltip> */}
-                            {/* </VStack> */}
                         </StatHelpText>
                     </Stat>
 

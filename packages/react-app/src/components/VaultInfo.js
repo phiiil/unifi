@@ -90,7 +90,7 @@ function VaultInfo() {
 
     function VaultStats() {
         return (
-            <Box bg="gray.800" maxW="xl" p={3} borderWidth="1px" borderRadius="lg">
+            <Box bg="gray.800" w="xl" p={4} borderWidth="1px" borderRadius="lg">
                 <Text fontSize="md" color="gray">
                     As a simple proof of concept, the Unifi Vault contains a single liquidity pool for WETH/USDC.
                 </Text>
