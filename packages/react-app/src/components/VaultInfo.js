@@ -9,7 +9,7 @@ import { FormControl, NumberInput, NumberInputField } from "@chakra-ui/react"
 import { Decimal } from "decimal.js";
 import { ethers } from "ethers";
 import { Contract } from "@ethersproject/contracts";
-import { Pool } from "@uniswap/v3-sdk";
+import { Pool, Position } from "@uniswap/v3-sdk";
 import { Token } from "@uniswap/sdk-core";
 import useWeb3Modal from "../hooks/useWeb3Modal";
 import Unifi from '../abi/UnifiVault.json'
@@ -29,6 +29,8 @@ function VaultInfo() {
     const [token1, setToken1] = useState(null);
     const [balance0, setBalance0] = useState(null);
     const [balance1, setBalance1] = useState(null);
+    const [positionAmount0, setPositionAmount0] = useState(null);
+    const [positionAmount1, setPositionAmount1] = useState(null);
     const [unifiAddress] = useState(process.env.REACT_APP_UNIFI_ADDR);
     const [tokenId, setTokenId] = useState('');
 
@@ -50,16 +52,46 @@ function VaultInfo() {
         const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
         const nft = new Contract(process.env.REACT_APP_NFT_ADDR, INonfungiblePositionManager.abi, provider);
 
+        // vault may not be initiated
         try {
             setTokenId(String(await unifi.vaultTokenId()));
             // console.log(tokenId)
-            const { liquidity } = await nft.positions(tokenId);
-            console.log("liquidity", liquidity);
+            let { liquidity } = await nft.positions(tokenId);
+            console.log("vault liquidity", liquidity)
+
             setTotalLiquidity(liquidity.toString());
         } catch (error) {}
 
-        setToken0(await uniswapPool.token0());
-        setToken1(await uniswapPool.token1());
+        const { sqrtPriceX96, tick } = await uniswapPool.slot0();
+        const fee = await uniswapPool.fee();
+        const t1 = uniswapPool.token0();
+        const t2 = uniswapPool.token1();
+        Promise.all([t1, t2]).then(async (res)=>{
+            setToken0(res[0]);
+            setToken1(res[1]);
+            const tokenA = new Token(1, res[0], 6, 'USDC', 'USDC');
+            const tokenB = new Token(1, res[1], 18, 'WETH', 'WETH');
+            const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, 0, tick);
+
+            try {
+                const { liquidity, tickLower, tickUpper } = await nft.positions(tokenId);
+                const position = new Position({
+                    pool,
+                    liquidity,
+                    tickLower,
+                    tickUpper
+                });
+                // console.log("amount0", ethers.utils.formatUnits(position.amount0.quotient.toString(), '6'));
+                // console.log("amount1", ethers.utils.formatEther(position.amount1.quotient.toString()));
+                setPositionAmount0(ethers.utils.formatUnits(position.amount0.quotient.toString(), '6'));
+                setPositionAmount1(ethers.utils.formatEther(position.amount1.quotient.toString()));
+
+            } catch(e) {
+                console.log(e)
+            }
+        });
+
+
 
         // await unifi.withdraw();
         // console.log(balance0)
@@ -201,10 +233,19 @@ function VaultInfo() {
                             Total liquidity held in the Vault.
                         </StatHelpText>
                     </Stat>
+                </StatGroup>
+
+                <StatGroup>
+                    <Stat>
+                        <StatLabel>USDC</StatLabel>
+                        <StatNumber>{positionAmount0}</StatNumber>
+                        <StatHelpText>
+                        </StatHelpText>
+                    </Stat>
 
                     <Stat>
-                        <StatLabel>Other Value</StatLabel>
-                        <StatNumber>0</StatNumber>
+                        <StatLabel>WETH</StatLabel>
+                        <StatNumber>{positionAmount1}</StatNumber>
                         <StatHelpText>
                         </StatHelpText>
                     </Stat>
