@@ -126,9 +126,10 @@ describe("UnifiVault", function () {
     console.log("signer eth balance", ethers.utils.formatEther(signerEthBalance));
     // const tokenId = (await pm.tokenOfOwnerByIndex(vault.address, 0)).toString();
 
-    // console.log("after withdraw from NFT");
-    // console.log("LPcontract weth bal", ethers.utils.formatEther(await vault.getWethBalance()));
-    // console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
+    console.log("after withdraw from NFT");
+    await vault.withdraw();
+    console.log("LPcontract weth bal", ethers.utils.formatEther(await vault.getWethBalance()));
+    console.log("LPcontract token bal", ethers.utils.formatUnits(await vault.getTokenBalance(), '6'));
 
     // rebalance with new params
     // params = {

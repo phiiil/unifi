@@ -14,11 +14,12 @@ import { Token } from "@uniswap/sdk-core";
 import useWeb3Modal from "../hooks/useWeb3Modal";
 import Unifi from '../abi/UnifiVault.json'
 import { abi as IUniswapV3PoolABI } from "@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Pool.sol/IUniswapV3Pool.json";
-import { TickMath, tickToPrice } from '@uniswap/v3-sdk'
+import INonfungiblePositionManager from "../abi/INonfungiblePositionManager.json";
+import { TickMath, tickToPrice } from '@uniswap/v3-sdk';
 
 /**
  * Component that displays information about our Vault for a specific pool
- * 
+ *
  * @returns the VaultInfo component
  */
 function VaultInfo() {
@@ -29,10 +30,12 @@ function VaultInfo() {
     const [balance0, setBalance0] = useState(null);
     const [balance1, setBalance1] = useState(null);
     const [unifiAddress] = useState(process.env.REACT_APP_UNIFI_ADDR);
+    const [tokenId, setTokenId] = useState('');
 
     useEffect(() => {
         if (provider) {
             getVaultInfo();
+            // console.log(token0)
         }
     }, [provider]);
 
@@ -42,11 +45,29 @@ function VaultInfo() {
     const getVaultInfo = async () => {
         console.log('Getting Vault Info...')
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
-        const unifi = new Contract(unifiAddress, Unifi.abi, provider);
-        let tl = await unifi.getTotalLiquidity();
-        setTotalLiquidity(tl.toString());
-        setToken0(await unifi.getToken0());
-        setToken1(await unifi.getToken1());
+        const signer = provider.getSigner();
+        const unifi = new Contract(unifiAddress, Unifi.abi, signer);
+        const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
+        const nft = new Contract(process.env.REACT_APP_NFT_ADDR, INonfungiblePositionManager.abi, provider);
+
+        try {
+            setTokenId(String(await unifi.vaultTokenId()));
+            // console.log(tokenId)
+            const { liquidity } = await nft.positions(tokenId);
+            console.log("liquidity", liquidity);
+            setTotalLiquidity(liquidity.toString());
+        } catch (error) {}
+
+        setToken0(await uniswapPool.token0());
+        setToken1(await uniswapPool.token1());
+
+        // await unifi.withdraw();
+        // console.log(balance0)
+        setBalance1(await unifi.getWethBalance());
+
+
+            // console.log(uniswapPool.address)
+
 
     };
 
@@ -58,10 +79,9 @@ function VaultInfo() {
                 // connect as signer to mintPosition
                 const unifi = new Contract(unifiAddress, Unifi.abi, provider.getSigner());
                 const uniswapPool = new Contract(process.env.REACT_APP_WETH_USDC_POOL, IUniswapV3PoolABI, provider);
-
                 const fee = await uniswapPool.fee()
-                const amount0Desired = await unifi.getVaultBalance(token0);
-                const amount1Desired = await unifi.getVaultBalance(token1);
+                const amount0Desired = await unifi.getTokenBalance();
+                const amount1Desired = await unifi.getWethBalance();
                 const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
 
                 let mintParams = {
@@ -69,7 +89,7 @@ function VaultInfo() {
                     token1: token1,
                     fee: fee.toString(),
                     tickLower: '196260',
-                    tickUpper: '199920',
+                    tickUpper: '221480',
                     amount0Desired: amount0Desired.toString(),
                     amount1Desired: amount1Desired.toString(),
                     amount0Min: '0',
@@ -81,6 +101,76 @@ function VaultInfo() {
                 // multicall and send ETH
                 let mintTx = await unifi.mintPosition(mintParams);
                 console.log(mintTx);
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
+    const addLiquidity = async (e) => {
+        console.log("Mint New Position");
+        if (provider) {
+            try {
+                const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
+                // connect as signer to mintPosition
+                const unifi = new Contract(unifiAddress, Unifi.abi, provider.getSigner());
+                const amount0Desired = await unifi.getTokenBalance();
+                const amount1Desired = await unifi.getWethBalance();
+                const deadline = Math.floor(Date.now() / 1000 + 60 * 60);
+                const vaultTokenId = unifi.vaultTokenId();
+
+                let increaseParams = {
+                    tokenId: vaultTokenId,
+                    amount0Desired: amount0Desired.toString(),
+                    amount1Desired: amount1Desired.toString(),
+                    amount0Min: '0',
+                    amount1Min: '0',
+                    deadline
+                }
+                console.log(increaseParams);
+                // multicall and send ETH
+                let increaseTx = await unifi.addLiquidity(increaseParams);
+                console.log(increaseTx);
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
+
+
+    const withdrawLiquidity = async (e) => {
+        console.log("Withdraw liquidity");
+        if (provider) {
+            try {
+                const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
+                // connect as signer to mintPosition
+                const unifi = new Contract(unifiAddress, Unifi.abi, provider.getSigner());
+                console.log(provider.getSigner());
+                // vault withdraws all liquidity from v3.
+                await unifi.withdraw();
+            }
+            catch (e) {
+                console.log(e);
+            }
+        }
+    }
+
+    // not completed
+    const addLiquidityEth = async () => {
+        console.log("Add liquidity ETH");
+        if (provider) {
+            try {
+                const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
+                // connect as signer to mintPosition
+                const unifi = new Contract(unifiAddress, Unifi.abi, provider.getSigner());
+                console.log(unifi)
+                // vault withdraws all liquidity from v3.
+                let addLiqTx = await unifi.addLiquidityEth();
+                await addLiqTx.wait();
+
             }
             catch (e) {
                 console.log(e);
@@ -121,7 +211,13 @@ function VaultInfo() {
                 </StatGroup>
             </Box>
             <Box>
-                <Button colorScheme="yellow" size="lg" onClick={mintInitialPosition}>Mint Initial Position</Button>
+                <Button colorScheme="yellow" size="lg" margin="1" onClick={mintInitialPosition}>Mint Initial Position</Button>
+                <Button colorScheme="green" size="lg" margin="1" onClick={addLiquidity}>Add Liquidity</Button>
+                <Button colorScheme="blue" size="lg" margin="1" onClick={withdrawLiquidity}>Withdraw Liquidity</Button>
+            </Box>
+                <Button colorScheme="blue" size="lg" margin="1" onClick={getVaultInfo}>update Vault Info</Button>
+            <Box>
+
             </Box>
             <Box>
 

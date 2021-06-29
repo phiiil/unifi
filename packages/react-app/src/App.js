@@ -17,7 +17,7 @@ function App({ Component }) {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
-      console.log({ transfers: data.transfers });
+      // console.log({ transfers: data.transfers });
     }
   }, [loading, error, data]);
 

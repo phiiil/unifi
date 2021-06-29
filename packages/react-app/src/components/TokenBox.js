@@ -14,7 +14,7 @@ import { Contract } from "@ethersproject/contracts";
 
 /**
  * Component that displays information about our Vault for a specific pool
- * 
+ *
  * @returns the VaultInfo component
  */
 function TokenBox({ address }) {
@@ -26,14 +26,15 @@ function TokenBox({ address }) {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [tokenInfo, setTokenInfo] = useState();
+    // console.log(address)
     useEffect(() => {
         if (address && !isLoaded && !error) {
-            console.log(`Getting token info: ${infoUrl}`);
+            // console.log(`Getting token info: ${infoUrl}`);
             fetch(infoUrl)
                 .then(res => res.json())
                 .then(
                     (result) => {
-                        console.log(result);
+                        // console.log(result);
                         setIsLoaded(true);
                         setTokenInfo(result);
                     },
@@ -66,11 +67,15 @@ function TokenBox({ address }) {
         const tokenContract = new Contract(address, ERC20.abi, provider);
         // Check Allowance
         const a = await tokenContract.allowance(signerAddress, unifiAddress);
-        console.log(a);
+        // console.log(a);
         setAllowance(formatTokenAmount(BigNumber.from(a)));
         // balance in the vault (no in  liquidity positions)
-        const vb = await unifiContract.getVaultBalance(address);
-        setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
+        try{
+            const vb = await unifiContract.getVaultBalance(address);
+            setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
+
+        } catch (erro) {}
+
     }
 
     const approveAllowance = async (e) => {
@@ -78,7 +83,7 @@ function TokenBox({ address }) {
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
         const tokenContract = new Contract(address, ERC20.abi, provider.getSigner());
-        // Approve Allowance of 
+        // Approve Allowance of
         const tx = await tokenContract.approve(unifiAddress, BigNumber.from("99999999999999999999"));
         await tx.wait();
         updateOnchainData();
@@ -99,7 +104,7 @@ function TokenBox({ address }) {
         return <div>Loading...</div>;
     } else {
         return (
-            <Box bg="gray.800" maxW="50%" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
+            <Box bg="gray.800" w="350px" h="200px" p={3} borderWidth="1px" borderRadius="lg" overflow="hidden">
                 <Stat >
                     <Image boxSize="2em" src={logoUrl} />
                     <StatLabel>{tokenInfo?.name}</StatLabel>
