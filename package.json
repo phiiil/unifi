@@ -28,5 +28,8 @@
     "packages": [
       "packages/*"
     ]
+  },
+  "dependencies": {
+    "uniswap-v3-deploy-plugin": "^0.1.0"
   }
 }

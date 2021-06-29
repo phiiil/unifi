@@ -269,6 +269,9 @@ contract UnifiVault {
         return weth9.balanceOf(address(this));
     }
 
+    /**
+     * Get the Vault balance for a token address
+     */
     function getVaultBalance(address tokenAddress)
         public
         view
@@ -289,6 +292,8 @@ contract UnifiVault {
         return lps[msg.sender].tokens[tokenAddress];
     }
 
+    event TokenDeposit(address token, uint256 amount);
+
     /**
      * Receive ETH from a lp.
      * 1. The ETH is wrapped in WETH and deposited under
@@ -298,6 +303,8 @@ contract UnifiVault {
     receive() external payable {
         weth9.deposit{value: msg.value}();
         lps[msg.sender].tokens[address(weth9)] += msg.value;
+        // this event emit does not seem to work
+        emit TokenDeposit(address(weth9), msg.value);
     }
 
     /**
@@ -312,5 +319,6 @@ contract UnifiVault {
         token.transferFrom(msg.sender, address(this), _amount);
         lps[msg.sender].tokens[_tokenAddress] += _amount;
         //emit DepositSuccessful(from_, to_, amount_);
+        emit TokenDeposit(_tokenAddress, _amount);
     }
 }
