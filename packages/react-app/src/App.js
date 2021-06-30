@@ -10,6 +10,13 @@ import WalletHeader from "./components/WalletHeader.js";
 // import { getDefaultProvider } from "@ethersproject/providers";
 import GET_TRANSFERS from "./graphql/subgraph";
 
+// react-router
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 function App({ Component }) {
 
