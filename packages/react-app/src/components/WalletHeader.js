@@ -5,7 +5,7 @@ import useWeb3Modal from "../hooks/useWeb3Modal";
 import { CurrencyAmount, Ether } from '@uniswap/sdk-core'
 /**
  * 3 buttons to display wallet info in the header
- * 
+ *
  * @returns The WalletHeader component
  */
 function WalletHeader() {
@@ -33,7 +33,7 @@ function WalletHeader() {
             let b = await s.getBalance();
             const network = await provider.getNetwork();
             setNetwork(network);
-            console.log(network);
+            // console.log(network);
             let balanceCurrency = CurrencyAmount.fromRawAmount(Ether.onChain(network.chainId), b);
             setBalance(balanceCurrency);
             setBalanceString(`${balanceCurrency.toSignificant(4)} Ξ`);

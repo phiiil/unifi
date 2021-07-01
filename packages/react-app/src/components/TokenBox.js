@@ -49,14 +49,15 @@ function TokenBox({ address }) {
     const [error, setError] = useState(null);
     const [isLoaded, setIsLoaded] = useState(false);
     const [tokenInfo, setTokenInfo] = useState();
+    // console.log(address)
     useEffect(() => {
         if (address && !isLoaded && !error) {
-            console.log(`Getting token info: ${infoUrl}`);
+            // console.log(`Getting token info: ${infoUrl}`);
             fetch(infoUrl)
                 .then((res) => res.json())
                 .then(
                     (result) => {
-                        console.log(result);
+                        // console.log(result);
                         setIsLoaded(true);
                         setTokenInfo(result);
                     },
@@ -87,23 +88,28 @@ function TokenBox({ address }) {
         const tokenContract = new Contract(address, ERC20.abi, provider);
         // Check Allowance
         const a = await tokenContract.allowance(signerAddress, unifiAddress);
-        console.log(a);
+        // console.log(a);
         setAllowance(formatTokenAmount(BigNumber.from(a)));
         // balance in the vault (no in  liquidity positions)
-        const vb = await unifiContract.getVaultBalance(address);
-        setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
+        try {
+            const vb = await unifiContract.getVaultBalance(address);
+            setVaultBalance(formatTokenAmount(BigNumber.from(vb)));
+
+        } catch (erro) {
+            console.log(erro);
+        }
     };
 
-    const approveAllowance = async(e) => {
+    const approveAllowance = async (e) => {
         console.log("Approving Allowance");
         allowAmount("99999999999999999999");
     }
 
-    const revokeAllowance = async(e) => {
+    const revokeAllowance = async (e) => {
         console.log("Revoking Allowance");
         allowAmount("0");
     }
-    async function allowAmount(_amount){
+    async function allowAmount(_amount) {
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
         const tokenContract = new Contract(
@@ -111,7 +117,7 @@ function TokenBox({ address }) {
             ERC20.abi,
             provider.getSigner()
         );
-        // Approve Allowance of _amount 
+        // Approve Allowance of _amount
         const tx = await tokenContract.approve(
             unifiAddress,
             BigNumber.from(_amount)

@@ -145,6 +145,8 @@ contract UnifiVault {
         (liquidity, amount0, amount1) = nonfungiblePositionManager
         .increaseLiquidity(params);
 
+        // (, , , , , , , liquidity, , , , ) = nonfungiblePositionManager.positions(vaultTokenId);
+
         totalLiquidity += liquidity;
     }
 
@@ -204,7 +206,6 @@ contract UnifiVault {
         console.log("vaultTokenId", vaultTokenId);
         console.log("total Liquidity", totalLiquidity);
 
-
             INonfungiblePositionManager.DecreaseLiquidityParams memory params
          = INonfungiblePositionManager.DecreaseLiquidityParams({
             tokenId: vaultTokenId,
@@ -215,6 +216,8 @@ contract UnifiVault {
         });
         (uint256 amount0, uint256 amount1) = nonfungiblePositionManager
         .decreaseLiquidity(params);
+
+        totalLiquidity = 0;
 
 
             INonfungiblePositionManager.CollectParams memory cparams
