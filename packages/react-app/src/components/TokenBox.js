@@ -175,7 +175,7 @@ function TokenBox({ address }) {
 
                     <Spacer />
                     {/* Comment: Button: Approve and Approved */}
-                    {/* <Button isDisabled={allowance>0} colorScheme="telegram"  color="white" onClick={approveAllowance}>{allowance>0?"Revoke":"Approve"}</Button> */}
+                    {/* <Button isDisabled={allowance>0} colorScheme="teal" color="white" onClick={approveAllowance}>{allowance>0?"Revoke":"Approve"}</Button> */}
 
                     {/* Comment: Button: Approve and Revoke */}
                     <Button
