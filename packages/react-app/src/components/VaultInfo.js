@@ -358,7 +358,7 @@ function VaultInfo() {
 
                 <Button colorScheme="green" size="lg" margin="1" onClick={addLiquidity}>Add Liquidity</Button>
                 <Button colorScheme="blue" size="lg" margin="1" onClick={withdrawLiquidity}>Withdraw Liquidity</Button>
-                <Button colorScheme="blue" size="lg" margin="1" onClick={getVaultInfo}>update Vault Info</Button>
+                <Button colorScheme="blue" size="lg" margin="1" onClick={getVaultInfo}>Update Vault Info</Button>
             </Box>
             <Box>
 

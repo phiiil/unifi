@@ -17,7 +17,7 @@ import {
 import UnifiLetterLogo from "./UnifiLetterLogo";
 import { Link as RouterLink } from "react-router-dom";
 
-export default function Landing() {
+export default function CallToActionWithAnnotation() {
     return (
         <Center w='100%' h='100%'>
             <Container maxW={"8xl"}>
