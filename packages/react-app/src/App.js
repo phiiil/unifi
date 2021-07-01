@@ -1,6 +1,4 @@
 import React from "react";
-import { ChakraProvider } from "@chakra-ui/react"
-
 import { useQuery } from "@apollo/react-hooks";
 import { Center, Box, Flex, Spacer } from "@chakra-ui/react"
 import VaultInfo from "./components/VaultInfo.js";
@@ -11,16 +9,10 @@ import WalletHeader from "./components/WalletHeader.js";
 import GET_TRANSFERS from "./graphql/subgraph";
 import UnifiLetterLogo from "./components/UnifiLetterLogo";
 
-// react-router
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
+// react-router Link
+import { Link } from "react-router-dom";
 
 function App({ Component }) {
-
   // stuff for the subgraph call (not using this yet)
   const { loading, error, data } = useQuery(GET_TRANSFERS);
   React.useEffect(() => {
@@ -30,8 +22,7 @@ function App({ Component }) {
   }, [loading, error, data]);
 
   return (
-    <ChakraProvider>
-
+    <>
       <Flex bgGradient="linear(to-r, red.200 0%, orange.100 25%, yellow.300 50%)">
         <Box color="gray.800" fontWeight="bold" fontSize="2em" p="4" >
           <Link to='/'>
@@ -48,7 +39,7 @@ function App({ Component }) {
           < VaultInfo />
         </Center >
       </Box>
-    </ChakraProvider >
+    </>
   );
 }
 

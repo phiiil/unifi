@@ -109,6 +109,7 @@ function TokenBox({ address }) {
         console.log("Revoking Allowance");
         allowAmount("0");
     }
+    
     async function allowAmount(_amount) {
         const signerAddress = await provider.getSigner().getAddress();
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
