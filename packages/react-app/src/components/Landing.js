@@ -14,7 +14,7 @@ import {
     HStack,
 } from "@chakra-ui/react";
 // react-router
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import UnifiLetterLogo from "./UnifiLetterLogo";
 
@@ -45,14 +45,14 @@ export default function CallToActionWithAnnotation() {
                         alignSelf={"center"}
                         position={"relative"}
                     >
-                        <Link to="/App">
+                        <Link to="/app">
                             <Button
                                 colorScheme={"teal"}
                                 rounded="xl"
                                 boxShadow="dark-lg"
                                 px={8}
                             >
-                                Open Vault
+                                Enter Vault
                             </Button>
                         </Link>
                     </Stack>

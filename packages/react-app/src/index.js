@@ -21,6 +21,7 @@ ReactDOM.render(
     <ChakraProvider>
       <Router>
         <Route exact path="/" component={Landing} />
+        <Route exact path="/home" component={Landing} />
         <Route exact path="/app" component={App} />
       </Router>
     </ChakraProvider>
