@@ -25,7 +25,6 @@ ReactDOM.render(
         <Route exact path="/app" component={App} />
       </Router>
     </ChakraProvider>
-    {/* <App /> */}
   </ApolloProvider>,
   document.getElementById("root")
 );

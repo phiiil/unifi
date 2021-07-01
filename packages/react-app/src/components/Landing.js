@@ -15,13 +15,13 @@ import {
 } from "@chakra-ui/react";
 // react-router
 import { Link } from "react-router-dom";
-
 import UnifiLetterLogo from "./UnifiLetterLogo";
 
 export default function CallToActionWithAnnotation() {
     return (
         <div>
-            <Container maxW={"4xl"}>
+            <Container maxW={"4xl"} h='100%'>
+                <Center>
                 <Stack
                     as={Box}
                     textAlign={"center"}
@@ -57,6 +57,7 @@ export default function CallToActionWithAnnotation() {
                         </Link>
                     </Stack>
                 </Stack>
+                </Center>
             </Container>
         </div>
     );
