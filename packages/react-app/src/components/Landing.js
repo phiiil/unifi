@@ -28,7 +28,7 @@ export default function CallToActionWithAnnotation() {
                     py={{ base: 20, md: 36 }}
                     direction="column"
                 >
-                    <Heading fontSize={{ base: "4xl", sm: "6xl", md: "8xl", lg: "8xl" }}>
+                    <Heading fontSize={{ base: "5xl", sm: "6xl", md: "8xl", lg: "8xl" }}>
                         {UnifiLetterLogo()}
                     </Heading>
                     <Heading

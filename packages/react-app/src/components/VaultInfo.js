@@ -43,14 +43,14 @@ function VaultInfo() {
     useEffect(() => {
         if (provider) {
             getVaultInfo();
-            // console.log(token0)
+            console.log(token0)
         }
     }, [provider]);
 
     /**
      * Call function on the Unifi contract to display information
      */
-    const getVaultInfo = async () => {
+    async function getVaultInfo(){
         console.log('Getting Vault Info...')
         const unifiAddress = process.env.REACT_APP_UNIFI_ADDR;
         const signer = provider.getSigner();
@@ -69,9 +69,8 @@ function VaultInfo() {
             // setWethPrice(ethers.utils.formatUnits(p, '6'));
             let { liquidity } = await nft.positions(tokenId);
             console.log("vault liquidity", liquidity)
-
             setTotalLiquidity(liquidity.toString());
-        } catch (error) { }
+        } catch (error) { console.log(error) }
 
         const { sqrtPriceX96, tick } = await uniswapPool.slot0();
         console.log("sqrtPriceX96", sqrtPriceX96.toString());
@@ -89,9 +88,10 @@ function VaultInfo() {
             const tokenA = new Token(1, res[0], 6, 'USDC', 'USDC');
             const tokenB = new Token(1, res[1], 18, 'WETH', 'WETH');
             const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, 0, tick);
-            // console.log("token0 price", Number(pool.token1Price.toSignificant(10)));
+            console.log("token0 price", Number(pool.token1Price.toSignificant(10)));
             setWethPrice(pool.token1Price.toSignificant(10));
             setCurrentTick(tick);
+
             try {
                 const { liquidity, tickLower, tickUpper } = await nft.positions(tokenId);
                 const position = new Position({
@@ -108,18 +108,13 @@ function VaultInfo() {
             } catch (e) {
                 console.log(e)
             }
-        });
-
-
+        }
+    );
 
         // await unifi.withdraw();
         // console.log(balance0)
         setBalance1(await unifi.getWethBalance());
-
-
         // console.log(uniswapPool.address)
-
-
     };
 
     const mintInitialPosition = async (e) => {
@@ -191,8 +186,6 @@ function VaultInfo() {
             }
         }
     }
-
-
 
     const withdrawLiquidity = async (e) => {
         console.log("Withdraw liquidity");
@@ -348,6 +341,7 @@ function VaultInfo() {
     }
 
 
+    // getVaultInfo();
 
     return (
         <VStack color="white">
@@ -358,27 +352,8 @@ function VaultInfo() {
                 <TokenBox address={token0} />
                 <TokenBox address={token1} />
             </VStack>
-{/* 
-            <Box color='gray.800'>
-                <Text mb="8px">Price Lower (put ETH price here) </Text>
-                <Input
-                    // value={value}
-                    onChange={handleLowerInput}
-                    placeholder="Lower limit of your price range"
-                    size="sm"
-                />
-                <Text mb="8px">Price Upper </Text>
-                <Input
-                    // value={value}
-                    onChange={handleUpperInput}
-                    placeholder="Upper limit of your price range"
-                    size="sm"
-                />
-                <Button colorScheme="yellow" size="lg" margin="1" onClick={mintInitialPosition}>Mint New Position</Button>
-            </Box> */}
 
             {VaultStats()}
-
             <Box>
 
                 <Button colorScheme="green" size="lg" margin="1" onClick={addLiquidity}>Add Liquidity</Button>
