@@ -1,4 +1,3 @@
-// import Head from 'next/head';
 import React from "react";
 import {
     Box,
@@ -15,8 +14,8 @@ import {
     Link
 } from "@chakra-ui/react";
 // react-router
-import { Link as reactLink } from "react-router-dom";
 import UnifiLetterLogo from "./UnifiLetterLogo";
+import { Link as RouterLink } from "react-router-dom";
 
 export default function CallToActionWithAnnotation() {
     return (
@@ -38,7 +37,9 @@ export default function CallToActionWithAnnotation() {
                     >
                         <Text color="cyan.800"> Uniswap V3 Liquidity Manager</Text>
                     </Heading>
-                    <Text fontSize="xl">Description - Place holder</Text>
+                    <Text fontSize="xl">
+                        A vault service over uniswap v3 to allow liquidity providers to create active strategies
+                    </Text>
 
                     <Stack
                         direction={"column"}
@@ -46,20 +47,21 @@ export default function CallToActionWithAnnotation() {
                         alignSelf={"center"}
                         position={"relative"}
                     >
+
                     <Link fontSize="xl" color="teal.600" href="https://github.com/phiiil/unifi" isExternal>
                         Repo
                     </Link>
-                        <reactLink to="/app">
-                            <Button
-                                colorScheme={"teal"}
-                                rounded="xl"
-                                boxShadow="dark-lg"
-                                px={8}
-                            >
-                                Enter Vault
-                            </Button>
-                        </reactLink>
-
+                    
+                    <Link as={RouterLink} to="/App">
+                        <Button
+                            colorScheme={"teal"}
+                            rounded="xl"
+                            boxShadow="dark-lg"
+                            px={8}
+                        >
+                            Enter Vault
+                        </Button>
+                    </Link>
                     </Stack>
                 </Stack>
             </Container>

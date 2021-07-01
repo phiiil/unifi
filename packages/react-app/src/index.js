@@ -8,7 +8,7 @@ import Landing from "./components/Landing";
 import { ChakraProvider } from "@chakra-ui/react";
 
 // react-router
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
@@ -22,7 +22,7 @@ ReactDOM.render(
       <Router>
         <Route exact path="/" component={Landing} />
         <Route exact path="/home" component={Landing} />
-        <Route exact path="/app" component={App} />
+        <Route exact path="/App" component={App} />
       </Router>
     </ChakraProvider>
   </ApolloProvider>,
