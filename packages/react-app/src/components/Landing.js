@@ -26,6 +26,7 @@ export default function CallToActionWithAnnotation() {
                     textAlign={"center"}
                     spacing={{ base: 4, md: 8 }}
                     py={{ base: 20, md: 36 }}
+                    direction="column"
                 >
                     <Heading fontSize={{ base: "4xl", sm: "6xl", md: "8xl", lg: "8xl" }}>
                         {UnifiLetterLogo()}
@@ -37,23 +38,19 @@ export default function CallToActionWithAnnotation() {
                     >
                         <Text color="cyan.800"> Uniswap V3 Liquidity Manager</Text>
                     </Heading>
-                    <Text fontSize="xl">
-                        A vault service over uniswap v3 to allow liquidity providers to create active strategies
+
+                    <Text fontSize="lg" as="i">
+                        A vault service over uniswap v3 to allow liquidity providers to create active strategies.
                     </Text>
 
-                    <Stack
-                        direction={"column"}
-                        align={"center"}
-                        alignSelf={"center"}
-                        position={"relative"}
-                    >
-
-                    <Link fontSize="xl" color="teal.600" href="https://github.com/phiiil/unifi" isExternal>
-                        Repo
-                    </Link>
-                    
-                    <Link as={RouterLink} to="/App">
-                        <Button
+                    <Box>
+                        <Link fontSize="xl" color="teal.600" href="https://github.com/phiiil/unifi" isExternal>
+                            Repo
+                        </Link>
+                    </Box>
+                    <Box>
+                        <Button as={RouterLink}
+                            to="/App"
                             colorScheme={"teal"}
                             rounded="xl"
                             boxShadow="dark-lg"
@@ -61,8 +58,7 @@ export default function CallToActionWithAnnotation() {
                         >
                             Enter Vault
                         </Button>
-                    </Link>
-                    </Stack>
+                    </Box>
                 </Stack>
             </Container>
         </Center>

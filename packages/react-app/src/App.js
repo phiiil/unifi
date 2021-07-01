@@ -28,7 +28,7 @@ function App({ Component }) {
           <Link to='/'>
             Unifi
           </Link>
-          </Box>
+        </Box>
         <Spacer />
         <Box p="4" >
           <WalletHeader />
