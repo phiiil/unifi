@@ -19,16 +19,15 @@ import UnifiLetterLogo from "./UnifiLetterLogo";
 
 export default function CallToActionWithAnnotation() {
     return (
-        <div>
-            <Container maxW={"4xl"} h='100%'>
-                <Center>
+            <Center w='100%' h='100%'>
+            <Container maxW={"8xl"}>
                 <Stack
                     as={Box}
                     textAlign={"center"}
                     spacing={{ base: 4, md: 8 }}
                     py={{ base: 20, md: 36 }}
                 >
-                    <Heading fontSize={{ base: "4xl", sm: "8xl", md: "8xl", lg: "8xl" }}>
+                    <Heading fontSize={{ base: "8xl", sm: "8xl", md: "8xl", lg: "8xl" }}>
                         {UnifiLetterLogo()}
                     </Heading>
                     <Heading
@@ -57,8 +56,7 @@ export default function CallToActionWithAnnotation() {
                         </Link>
                     </Stack>
                 </Stack>
-                </Center>
             </Container>
-        </div>
+            </Center>
     );
 }
